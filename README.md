@@ -1,4 +1,4 @@
-# My Safe App
+# Gnosis Auction Starter
 
 ## Getting Started
 
