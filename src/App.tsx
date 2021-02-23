@@ -1,7 +1,8 @@
-import React, { useCallback, useState } from 'react';
-import styled from 'styled-components';
-import { Button, Loader, Title } from '@gnosis.pm/safe-react-components';
-import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk';
+import React, { useCallback, useState } from 'react'
+import styled from 'styled-components'
+
+import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
+import { Button, Loader, Title } from '@gnosis.pm/safe-react-components'
 
 const Container = styled.form`
   margin-bottom: 2rem;
@@ -12,14 +13,14 @@ const Container = styled.form`
   grid-template-columns: 1fr;
   grid-column-gap: 1rem;
   grid-row-gap: 1rem;
-`;
+`
 
 const App: React.FC = () => {
-  const { sdk, safe } = useSafeAppsSDK();
-  const [submitting, setSubmitting] = useState(false);
+  const { safe, sdk } = useSafeAppsSDK()
+  const [submitting, setSubmitting] = useState(false)
 
   const submitTx = useCallback(async () => {
-    setSubmitting(true);
+    setSubmitting(true)
     try {
       const { safeTxHash } = await sdk.txs.send({
         txs: [
@@ -29,15 +30,15 @@ const App: React.FC = () => {
             data: '0x',
           },
         ],
-      });
-      console.log({ safeTxHash });
-      const safeTx = await sdk.txs.getBySafeTxHash(safeTxHash);
-      console.log({ safeTx });
+      })
+      console.log({ safeTxHash })
+      const safeTx = await sdk.txs.getBySafeTxHash(safeTxHash)
+      console.log({ safeTx })
     } catch (e) {
-      console.error(e);
+      console.error(e)
     }
-    setSubmitting(false);
-  }, [safe, sdk]);
+    setSubmitting(false)
+  }, [safe, sdk])
 
   return (
     <Container>
@@ -47,22 +48,22 @@ const App: React.FC = () => {
           <Loader size="md" />
           <br />
           <Button
-            size="lg"
             color="secondary"
             onClick={() => {
-              setSubmitting(false);
+              setSubmitting(false)
             }}
+            size="lg"
           >
             Cancel
           </Button>
         </>
       ) : (
-        <Button size="lg" color="primary" onClick={submitTx}>
+        <Button color="primary" onClick={submitTx} size="lg">
           Submit
         </Button>
       )}
     </Container>
-  );
-};
+  )
+}
 
-export default App;
+export default App
