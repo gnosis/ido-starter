@@ -61,7 +61,6 @@ const App: React.FC = () => {
       try {
         const { safeTxHash } = await sdk.txs.send({
           txs,
-          params: { safeTxGas: 21000 },
         })
         console.log({ safeTxHash })
         const safeTx = await sdk.txs.getBySafeTxHash(safeTxHash)
@@ -105,7 +104,7 @@ const App: React.FC = () => {
         await biddingToken.decimals()
       )
 
-      if (auctionParams.allowListManager != '0x0000000000000000000000000000000000000000') {
+      if (auctionParams.allowListManager !== '0x0000000000000000000000000000000000000000') {
         console.error('allowListManager not supported')
       }
 
@@ -173,8 +172,8 @@ const App: React.FC = () => {
           color="primary"
           onClick={() =>
             initiateNewAuction({
-              auctioningToken: '0xc778417e063141139fce010982780140aa0cd5ab',
-              biddingToken: '0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa',
+              auctioningToken: '0x4dbcdf9b62e891a7cec5a2568c3f4faf9e8abe2b',
+              biddingToken: '0x5592ec0cfb4dbc12d3ab100b257153436a1f0fea',
               sellAmount: '0.1',
               minBuyAmount: '50',
             })
