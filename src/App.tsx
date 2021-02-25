@@ -1,12 +1,14 @@
 import { utils } from 'ethers'
 import React, { useCallback, useMemo, useState } from 'react'
+import { FormProvider, useForm } from 'react-hook-form'
 import styled from 'styled-components'
 
 import { SafeAppsSdkSigner } from '@gnosis.pm/safe-apps-ethers-provider'
 import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
 import { Transaction } from '@gnosis.pm/safe-apps-sdk'
-import { Button, Loader, Title } from '@gnosis.pm/safe-react-components'
+import { Button, Divider, Loader, Title } from '@gnosis.pm/safe-react-components'
 
+import { Input } from './components/Input'
 import { ERC20__factory as ERC20Factory, EasyAuction__factory as EasyAuctionFactory } from './types'
 
 type Auction = {
@@ -42,9 +44,13 @@ const Container = styled.form`
   grid-row-gap: 1rem;
 `
 
+const ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/
+
 const App: React.FC = () => {
   const { safe, sdk } = useSafeAppsSDK()
   const [submitting, setSubmitting] = useState(false)
+  const [hasAuctioningTokenBalance, setHasAuctioningTokenBalance] = useState(true)
+  const methods = useForm<Required<Auction>>()
 
   const easyAuction = useMemo(
     () =>
@@ -75,6 +81,7 @@ const App: React.FC = () => {
 
   const initiateNewAuction = useCallback(
     async (params: Auction) => {
+      console.log('HERE', params)
       const auctionParams = { ...DEFAULT_PARAMS, ...params }
 
       const auctioningToken = ERC20Factory.connect(
@@ -109,8 +116,11 @@ const App: React.FC = () => {
       }
 
       const balance = await auctioningToken.balanceOf(safe.safeAddress)
+      // TODO Make clearer and simpler
       if (sellAmountsInAtoms.gt(balance)) {
-        console.error('Balance not sufficient')
+        setHasAuctioningTokenBalance(false)
+      } else {
+        setHasAuctioningTokenBalance(true)
       }
 
       const allowance = await auctioningToken.allowance(safe.safeAddress, easyAuction.address)
@@ -145,45 +155,61 @@ const App: React.FC = () => {
         ]),
       })
 
+      // TODO Check errors and disable submit. Move to effect/memo
       return submitTx(txs)
     },
     [easyAuction.address, easyAuction.interface, safe, sdk, submitTx]
   )
 
   return (
-    <Container>
-      <Title size="md">{safe.safeAddress}</Title>
-      {submitting ? (
-        <>
-          <Loader size="md" />
-          <br />
+    <FormProvider {...methods}>
+      <Container>
+        <Title size="md">Start a new Gnosis Auction</Title>
+        <Divider />
+
+        <Input
+          error={!hasAuctioningTokenBalance ? 'Balance Insufficient' : ''}
+          label="Auctioning Token"
+          name="auctioningToken"
+        />
+        <Input label="Bidding Token" name="biddingToken" />
+        <Input label="Number of tokens to auction off" name="sellAmount" />
+        <Input label="Minimum number of tokens to receive in total" name="minBuyAmount" />
+
+        {submitting ? (
+          <>
+            <Loader size="md" />
+            <br />
+            <Button
+              color="secondary"
+              onClick={() => {
+                setSubmitting(false)
+              }}
+              size="lg"
+            >
+              Cancel
+            </Button>
+          </>
+        ) : (
           <Button
-            color="secondary"
+            color="primary"
             onClick={() => {
-              setSubmitting(false)
+              //console.log('submit', methods.getValues())
+              initiateNewAuction(methods.getValues())
+              // initiateNewAuction({
+              //   auctioningToken: '0x4dbcdf9b62e891a7cec5a2568c3f4faf9e8abe2b',
+              //   biddingToken: '0x5592ec0cfb4dbc12d3ab100b257153436a1f0fea',
+              //   sellAmount: '0.1',
+              //   minBuyAmount: '50',
+              // })
             }}
             size="lg"
           >
-            Cancel
+            Submit
           </Button>
-        </>
-      ) : (
-        <Button
-          color="primary"
-          onClick={() =>
-            initiateNewAuction({
-              auctioningToken: '0x4dbcdf9b62e891a7cec5a2568c3f4faf9e8abe2b',
-              biddingToken: '0x5592ec0cfb4dbc12d3ab100b257153436a1f0fea',
-              sellAmount: '0.1',
-              minBuyAmount: '50',
-            })
-          }
-          size="lg"
-        >
-          Submit
-        </Button>
-      )}
-    </Container>
+        )}
+      </Container>
+    </FormProvider>
   )
 }
 
