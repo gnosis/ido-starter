@@ -81,7 +81,6 @@ const App: React.FC = () => {
 
   const initiateNewAuction = useCallback(
     async (params: Auction) => {
-      console.log('HERE', params)
       const auctionParams = { ...DEFAULT_PARAMS, ...params }
 
       const auctioningToken = ERC20Factory.connect(
