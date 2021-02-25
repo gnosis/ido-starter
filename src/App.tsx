@@ -1,8 +1,35 @@
-import React, { useCallback, useState } from 'react'
+import { utils } from 'ethers'
+import React, { useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
+import { SafeAppsSdkSigner } from '@gnosis.pm/safe-apps-ethers-provider'
 import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
+import { Transaction } from '@gnosis.pm/safe-apps-sdk'
 import { Button, Loader, Title } from '@gnosis.pm/safe-react-components'
+
+import { ERC20__factory as ERC20Factory, EasyAuction__factory as EasyAuctionFactory } from './types'
+
+type Auction = {
+  auctioningToken: string
+  biddingToken: string
+  sellAmount: string
+  minBuyAmount: string
+  minFundingThreshold?: string
+  orderCancellationPeriod?: string
+  duration?: string
+  minBuyAmountPerOrder?: string
+  isAtomicClosureAllowed?: boolean
+  allowListManager?: string
+}
+
+const DEFAULT_PARAMS = {
+  minFundingThreshold: '0',
+  orderCancellationPeriod: '0',
+  duration: '360000',
+  minBuyAmountPerOrder: '0.01',
+  isAtomicClosureAllowed: false,
+  allowListManager: '0x0000000000000000000000000000000000000000',
+}
 
 const Container = styled.form`
   margin-bottom: 2rem;
@@ -19,26 +46,110 @@ const App: React.FC = () => {
   const { safe, sdk } = useSafeAppsSDK()
   const [submitting, setSubmitting] = useState(false)
 
-  const submitTx = useCallback(async () => {
-    setSubmitting(true)
-    try {
-      const { safeTxHash } = await sdk.txs.send({
-        txs: [
-          {
-            to: safe.safeAddress,
-            value: '0',
-            data: '0x',
-          },
-        ],
+  const easyAuction = useMemo(
+    () =>
+      EasyAuctionFactory.connect(
+        '0x99e63218201e44549AB8a6Fa220e1018FDB48f79',
+        new SafeAppsSdkSigner(safe, sdk)
+      ),
+    [sdk, safe]
+  )
+
+  const submitTx = useCallback(
+    async (txs: Transaction[]) => {
+      setSubmitting(true)
+      try {
+        const { safeTxHash } = await sdk.txs.send({
+          txs,
+          params: { safeTxGas: 21000 },
+        })
+        console.log({ safeTxHash })
+        const safeTx = await sdk.txs.getBySafeTxHash(safeTxHash)
+        console.log({ safeTx })
+      } catch (e) {
+        console.error(e)
+      }
+      setSubmitting(false)
+    },
+    [sdk]
+  )
+
+  const initiateNewAuction = useCallback(
+    async (params: Auction) => {
+      const auctionParams = { ...DEFAULT_PARAMS, ...params }
+
+      const auctioningToken = ERC20Factory.connect(
+        auctionParams.auctioningToken,
+        new SafeAppsSdkSigner(safe, sdk)
+      )
+
+      const biddingToken = ERC20Factory.connect(
+        auctionParams.biddingToken,
+        new SafeAppsSdkSigner(safe, sdk)
+      )
+
+      const sellAmountsInAtoms = utils.parseUnits(
+        auctionParams.sellAmount,
+        await auctioningToken.decimals()
+      )
+      const minBuyAmountInAtoms = utils.parseUnits(
+        auctionParams.minBuyAmount,
+        await biddingToken.decimals()
+      )
+      const minParticipantsBuyAmount = utils.parseUnits(
+        auctionParams.minBuyAmountPerOrder,
+        await biddingToken.decimals()
+      )
+      const minFundingThresholdInAtoms = utils.parseUnits(
+        auctionParams.minFundingThreshold,
+        await biddingToken.decimals()
+      )
+
+      if (auctionParams.allowListManager != '0x0000000000000000000000000000000000000000') {
+        console.error('allowListManager not supported')
+      }
+
+      const balance = await auctioningToken.balanceOf(safe.safeAddress)
+      if (sellAmountsInAtoms.gt(balance)) {
+        console.error('Balance not sufficient')
+      }
+
+      const allowance = await auctioningToken.allowance(safe.safeAddress, easyAuction.address)
+
+      const txs: Transaction[] = []
+
+      if (sellAmountsInAtoms.gt(allowance)) {
+        txs.push({
+          to: auctioningToken.address,
+          value: '0',
+          data: auctioningToken.interface.encodeFunctionData('approve', [
+            easyAuction.address,
+            sellAmountsInAtoms,
+          ]),
+        })
+      }
+
+      txs.push({
+        to: easyAuction.address,
+        value: '0',
+        data: easyAuction.interface.encodeFunctionData('initiateAuction', [
+          auctioningToken.address,
+          biddingToken.address,
+          auctionParams.orderCancellationPeriod,
+          auctionParams.duration,
+          sellAmountsInAtoms,
+          minBuyAmountInAtoms,
+          minParticipantsBuyAmount,
+          minFundingThresholdInAtoms,
+          auctionParams.isAtomicClosureAllowed,
+          auctionParams.allowListManager,
+        ]),
       })
-      console.log({ safeTxHash })
-      const safeTx = await sdk.txs.getBySafeTxHash(safeTxHash)
-      console.log({ safeTx })
-    } catch (e) {
-      console.error(e)
-    }
-    setSubmitting(false)
-  }, [safe, sdk])
+
+      return submitTx(txs)
+    },
+    [easyAuction.address, easyAuction.interface, safe, sdk, submitTx]
+  )
 
   return (
     <Container>
@@ -58,7 +169,18 @@ const App: React.FC = () => {
           </Button>
         </>
       ) : (
-        <Button color="primary" onClick={submitTx} size="lg">
+        <Button
+          color="primary"
+          onClick={() =>
+            initiateNewAuction({
+              auctioningToken: '0xc778417e063141139fce010982780140aa0cd5ab',
+              biddingToken: '0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa',
+              sellAmount: '0.1',
+              minBuyAmount: '50',
+            })
+          }
+          size="lg"
+        >
           Submit
         </Button>
       )}
