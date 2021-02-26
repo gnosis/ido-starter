@@ -1,4 +1,5 @@
 import { utils } from 'ethers'
+import moment from 'moment'
 import React, { useCallback, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import styled from 'styled-components'
@@ -8,6 +9,7 @@ import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
 import { Transaction } from '@gnosis.pm/safe-apps-sdk'
 import { Button, Divider, Loader, Title } from '@gnosis.pm/safe-react-components'
 
+import { DateTimePicker } from './components/DateTimePicker'
 import { Input } from './components/Input'
 import { ERC20__factory as ERC20Factory, EasyAuction__factory as EasyAuctionFactory } from './types'
 
@@ -49,7 +51,7 @@ const ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/
 const App: React.FC = () => {
   const { safe, sdk } = useSafeAppsSDK()
   const [submitting, setSubmitting] = useState(false)
-  const [hasAuctioningTokenBalance, setHasAuctioningTokenBalance] = useState(true)
+  const [hasEnoughAuctioningTokenBalance, setHasEnoughAuctioningTokenBalance] = useState(true)
   const methods = useForm<Required<Auction>>()
 
   const easyAuction = useMemo(
@@ -115,12 +117,8 @@ const App: React.FC = () => {
       }
 
       const balance = await auctioningToken.balanceOf(safe.safeAddress)
-      // TODO Make clearer and simpler
-      if (sellAmountsInAtoms.gt(balance)) {
-        setHasAuctioningTokenBalance(false)
-      } else {
-        setHasAuctioningTokenBalance(true)
-      }
+      const hasEnoughBalance = balance.gt(sellAmountsInAtoms)
+      setHasEnoughAuctioningTokenBalance(hasEnoughBalance)
 
       const allowance = await auctioningToken.allowance(safe.safeAddress, easyAuction.address)
 
@@ -137,14 +135,21 @@ const App: React.FC = () => {
         })
       }
 
+      const orderCancellationPeriod = moment
+        .duration(moment.utc(auctionParams.orderCancellationPeriod).diff(moment.utc()))
+        .as('seconds')
+      const duration = moment
+        .duration(moment.utc(auctionParams.duration).diff(moment.utc()))
+        .as('seconds')
+
       txs.push({
         to: easyAuction.address,
         value: '0',
         data: easyAuction.interface.encodeFunctionData('initiateAuction', [
           auctioningToken.address,
           biddingToken.address,
-          auctionParams.orderCancellationPeriod,
-          auctionParams.duration,
+          Math.ceil(orderCancellationPeriod),
+          Math.ceil(duration),
           sellAmountsInAtoms,
           minBuyAmountInAtoms,
           minParticipantsBuyAmount,
@@ -167,13 +172,15 @@ const App: React.FC = () => {
         <Divider />
 
         <Input
-          error={!hasAuctioningTokenBalance ? 'Balance Insufficient' : ''}
+          error={hasEnoughAuctioningTokenBalance ? '' : 'Not enough balance'}
           label="Auctioning Token"
           name="auctioningToken"
         />
         <Input label="Bidding Token" name="biddingToken" />
         <Input label="Number of tokens to auction off" name="sellAmount" />
         <Input label="Minimum number of tokens to receive in total" name="minBuyAmount" />
+        <DateTimePicker label="label1" name="orderCancellationPeriod" />
+        <DateTimePicker label="label2" name="duration" />
 
         {submitting ? (
           <>
@@ -192,15 +199,10 @@ const App: React.FC = () => {
         ) : (
           <Button
             color="primary"
-            onClick={() => {
-              //console.log('submit', methods.getValues())
-              initiateNewAuction(methods.getValues())
-              // initiateNewAuction({
-              //   auctioningToken: '0x4dbcdf9b62e891a7cec5a2568c3f4faf9e8abe2b',
-              //   biddingToken: '0x5592ec0cfb4dbc12d3ab100b257153436a1f0fea',
-              //   sellAmount: '0.1',
-              //   minBuyAmount: '50',
-              // })
+            onClick={async () => {
+              const values = methods.getValues()
+              await initiateNewAuction(values)
+              methods.reset()
             }}
             size="lg"
           >
