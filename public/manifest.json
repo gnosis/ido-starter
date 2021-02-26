@@ -10,14 +10,14 @@
       "type": "image/x-icon"
     },
     {
-      "src": "logo192.png",
+      "src": "logo-small.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "206x33"
     },
     {
-      "src": "logo512.png",
+      "src": "logo-medium.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "411x66"
     }
   ],
   "start_url": ".",
