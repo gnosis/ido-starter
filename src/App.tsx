@@ -1,6 +1,6 @@
 import { utils } from 'ethers'
 import moment from 'moment'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import styled from 'styled-components'
 
@@ -11,7 +11,8 @@ import { Button, Divider, Loader, Title } from '@gnosis.pm/safe-react-components
 
 import { DateTimePicker } from './components/DateTimePicker'
 import { Input } from './components/Input'
-import { ERC20__factory as ERC20Factory, EasyAuction__factory as EasyAuctionFactory } from './types'
+import { useEasyAuctionContract } from './hooks/useEasyAuctionContract'
+import { ERC20__factory as ERC20Factory } from './types'
 
 type Auction = {
   auctioningToken: string
@@ -46,22 +47,13 @@ const Container = styled.form`
   grid-row-gap: 1rem;
 `
 
-const ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/
-
 const App: React.FC = () => {
   const { safe, sdk } = useSafeAppsSDK()
   const [submitting, setSubmitting] = useState(false)
   const [hasEnoughAuctioningTokenBalance, setHasEnoughAuctioningTokenBalance] = useState(true)
   const methods = useForm<Required<Auction>>()
 
-  const easyAuction = useMemo(
-    () =>
-      EasyAuctionFactory.connect(
-        '0x99e63218201e44549AB8a6Fa220e1018FDB48f79',
-        new SafeAppsSdkSigner(safe, sdk)
-      ),
-    [sdk, safe]
-  )
+  const easyAuction = useEasyAuctionContract()
 
   const submitTx = useCallback(
     async (txs: Transaction[]) => {
