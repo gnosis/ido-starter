@@ -5,6 +5,7 @@ import { SafeAppsSdkSigner } from '@gnosis.pm/safe-apps-ethers-provider'
 import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
 import { useAsyncMemo } from 'use-async-memo'
 
+import { ADDRESS_REGEX } from '../utils'
 import { ERC20__factory as ERC20Factory } from './../types'
 
 interface Props {
@@ -15,7 +16,7 @@ export const useERC20 = (props: Props) => {
   const { safe, sdk } = useSafeAppsSDK()
   const address = props ? props.address : ''
   const token = useMemo(() => {
-    if (address) {
+    if (address && ADDRESS_REGEX.test(address)) {
       return ERC20Factory.connect(address, new SafeAppsSdkSigner(safe, sdk))
     } else {
       return null

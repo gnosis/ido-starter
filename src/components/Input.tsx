@@ -5,6 +5,7 @@ import { Controller, useFormContext } from 'react-hook-form'
 import { TextField } from '@gnosis.pm/safe-react-components'
 
 import { useERC20 } from '../hooks/useERC20'
+import { ADDRESS_REGEX } from '../utils'
 
 interface InputProps {
   name: string
@@ -41,8 +42,6 @@ export const Input = ({ label, name }: InputProps) => {
   )
 }
 
-const ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/
-
 export const ERC20Input = ({ amount, label, name }: ERC20InputProps) => {
   const { control, errors, watch } = useFormContext()
 
@@ -56,6 +55,7 @@ export const ERC20Input = ({ amount, label, name }: ERC20InputProps) => {
       return true
     }
   }, [address, amount, balance])
+
   const error = useMemo(() => {
     const error = errors[name]
     if (error) {
