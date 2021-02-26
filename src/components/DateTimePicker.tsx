@@ -19,9 +19,7 @@ export const DateTimePicker = ({ label, name }: Props) => {
       name={name}
       render={({ onChange, value }) => (
         <DatePicker
-          // customInput={({ onClick, value }: { onClick: () => void; value: string }) => (
-          //   <TextField label={label} name={name} onClick={onClick} readOnly value={value} />
-          // )}
+          customInput={<TextField label={label} value={value.toString()} />}
           dateFormat="MMMM d, yyyy h:mm aa"
           onChange={onChange}
           selected={value || new Date()}

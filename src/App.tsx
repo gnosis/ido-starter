@@ -179,8 +179,8 @@ const App: React.FC = () => {
         <Input label="Bidding Token" name="biddingToken" />
         <Input label="Number of tokens to auction off" name="sellAmount" />
         <Input label="Minimum number of tokens to receive in total" name="minBuyAmount" />
-        <DateTimePicker label="label1" name="orderCancellationPeriod" />
-        <DateTimePicker label="label2" name="duration" />
+        <DateTimePicker label="End time for order cancellation" name="orderCancellationPeriod" />
+        <DateTimePicker label="Auction end time" name="duration" />
 
         {submitting ? (
           <>
@@ -206,7 +206,7 @@ const App: React.FC = () => {
             }}
             size="lg"
           >
-            Submit
+            Build transaction
           </Button>
         )}
       </Container>
