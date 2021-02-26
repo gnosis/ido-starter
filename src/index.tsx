@@ -1,11 +1,12 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { ThemeProvider } from 'styled-components';
-import { theme, Loader, Title } from '@gnosis.pm/safe-react-components';
-import SafeProvider from '@gnosis.pm/safe-apps-react-sdk';
+import React from 'react'
+import ReactDOM from 'react-dom'
+import { ThemeProvider } from 'styled-components'
 
-import GlobalStyle from './GlobalStyle';
-import App from './App';
+import SafeProvider from '@gnosis.pm/safe-apps-react-sdk'
+import { Loader, Title, theme } from '@gnosis.pm/safe-react-components'
+
+import App from './App'
+import GlobalStyle from './GlobalStyle'
 
 ReactDOM.render(
   <React.StrictMode>
@@ -23,5 +24,5 @@ ReactDOM.render(
       </SafeProvider>
     </ThemeProvider>
   </React.StrictMode>,
-  document.getElementById('root'),
-);
+  document.getElementById('root')
+)
