@@ -12268,6 +12268,11 @@ url@^0.11.0:
     punycode "1.3.2"
     querystring "0.2.0"
 
+use-async-memo@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/use-async-memo/-/use-async-memo-1.2.2.tgz#6549579335c00afc0fff6f18eafc4a9d29596ece"
+  integrity sha512-xJ6a+yE7l8rtCKYDEhIS4S1lQF5mNPHF5nD2bLFVh9eTePuWuOCMHZBNv5S8Jy0Mj9mYVBJWUzBiIoKNBE71eA==
+
 use@^3.1.0:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/use/-/use-3.1.1.tgz#d50c8cac79a19fbc20f2911f56eb973f4e10070f"
