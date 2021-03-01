@@ -1,5 +1,5 @@
 import { BigNumber } from 'ethers'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
 import { SafeAppsSdkSigner } from '@gnosis.pm/safe-apps-ethers-provider'
 import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
@@ -14,10 +14,19 @@ interface Props {
 
 export const useERC20 = (props: Props) => {
   const { safe, sdk } = useSafeAppsSDK()
+  const [error, setError] = useState('')
+
   const address = props ? props.address : ''
   const token = useMemo(() => {
     if (address && ADDRESS_REGEX.test(address)) {
-      return ERC20Factory.connect(address, new SafeAppsSdkSigner(safe, sdk))
+      try {
+        const token = ERC20Factory.connect(address, new SafeAppsSdkSigner(safe, sdk))
+        return token
+      } catch (e) {
+        setError(e.message)
+      } finally {
+        setError('')
+      }
     } else {
       return null
     }
@@ -41,5 +50,5 @@ export const useERC20 = (props: Props) => {
     }
   }, [safe, token])
 
-  return { token, balance, decimals }
+  return { token, balance, decimals, error }
 }

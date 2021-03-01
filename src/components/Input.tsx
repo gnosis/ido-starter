@@ -46,7 +46,7 @@ export const ERC20Input = ({ amount, label, name }: ERC20InputProps) => {
   const { control, errors, watch } = useFormContext()
 
   const address = watch()[name]
-  const { balance } = useERC20(address)
+  const { balance, error: contractError } = useERC20(address)
 
   const isBalanceEnough = useCallback(async () => {
     if (address && balance && amount) {
