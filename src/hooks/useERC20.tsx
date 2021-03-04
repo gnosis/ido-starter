@@ -1,12 +1,11 @@
 import { BigNumber } from 'ethers'
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { SafeAppsSdkSigner } from '@gnosis.pm/safe-apps-ethers-provider'
 import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
-import { useAsyncMemo } from 'use-async-memo'
 
-import { ADDRESS_REGEX } from '../utils'
-import { ERC20__factory as ERC20Factory } from './../types'
+import { ADDRESS_REGEX, Maybe } from '../utils'
+import { ERC20, ERC20__factory as ERC20Factory } from './../types'
 
 interface Props {
   address: string
@@ -14,41 +13,45 @@ interface Props {
 
 export const useERC20 = (props: Props) => {
   const { safe, sdk } = useSafeAppsSDK()
-  const [error, setError] = useState('')
 
+  const [token, setToken] = useState<Maybe<ERC20>>(null)
+  const [error, setError] = useState(false)
+  const [balance, setBalance] = useState(BigNumber.from(0))
+  const [decimals, setDecimals] = useState(18)
   const address = props ? props.address : ''
-  const token = useMemo(() => {
-    if (address && ADDRESS_REGEX.test(address)) {
+
+  useEffect(() => {
+    const fetchToken = async () => {
       try {
-        const token = ERC20Factory.connect(address, new SafeAppsSdkSigner(safe, sdk))
-        return token
+        const provider = new SafeAppsSdkSigner(safe, sdk)
+        const token = ERC20Factory.connect(address, provider)
+        const code = await sdk.eth.getCode([token.address])
+
+        const balance = await token.balanceOf(safe.safeAddress)
+        const decimals = await token.decimals()
+
+        const symbol = await token.symbol()
+        const name = await token.name()
+
+        if (code !== '0x' && decimals && symbol && name) {
+          setError(false)
+          setToken(token)
+          setDecimals(decimals)
+          setBalance(balance)
+        } else {
+          setError(true)
+          setToken(null)
+        }
       } catch (e) {
-        setError(e.message)
-      } finally {
-        setError('')
+        setError(true)
+        setToken(null)
       }
-    } else {
-      return null
+    }
+
+    if (address && ADDRESS_REGEX.test(address)) {
+      fetchToken()
     }
   }, [address, safe, sdk])
-
-  const balance = useAsyncMemo(async () => {
-    if (token) {
-      const balance = await token.balanceOf(safe.safeAddress)
-      return balance
-    } else {
-      return BigNumber.from('0')
-    }
-  }, [safe, token])
-
-  const decimals = useAsyncMemo(async () => {
-    if (token) {
-      const decimals = await token.decimals()
-      return decimals
-    } else {
-      return 18
-    }
-  }, [safe, token])
 
   return { token, balance, decimals, error }
 }

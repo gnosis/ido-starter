@@ -1,13 +1,12 @@
 import { BigNumber, utils } from 'ethers'
 import moment from 'moment'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import styled from 'styled-components'
 
 import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
 import { Transaction } from '@gnosis.pm/safe-apps-sdk'
 import { Button, Divider, Loader, Title } from '@gnosis.pm/safe-react-components'
-import { useAsyncMemo } from 'use-async-memo'
 
 import { DateTimePicker } from './components/DateTimePicker'
 import { ERC20Input, Input } from './components/Input'
@@ -57,18 +56,26 @@ const App: React.FC = () => {
   const auctioningTokenAddress = methods.watch()['auctioningToken']
   const sellAmount = methods.watch()['sellAmount']
 
-  const sellAmountInAtoms = useAsyncMemo(async () => {
-    return auctioningToken
-      ? utils.parseUnits(sellAmount, await auctioningToken.decimals())
-      : BigNumber.from('0')
-  }, [])
-
-  const { decimals: biddingTokenDecimals, token: biddingToken } = useERC20({
+  const {
+    decimals: biddingTokenDecimals,
+    error: errorBiddingToken,
+    token: biddingToken,
+  } = useERC20({
     address: biddingTokenAddress,
   })
-  const { token: auctioningToken } = useERC20({
+  const {
+    decimals: auctioningTokenDecimals,
+    error: errorAuctioningToken,
+    token: auctioningToken,
+  } = useERC20({
     address: auctioningTokenAddress,
   })
+
+  const sellAmountInAtoms = useMemo(() => {
+    return auctioningToken && auctioningTokenDecimals && sellAmount && !errorAuctioningToken
+      ? utils.parseUnits(sellAmount, auctioningTokenDecimals)
+      : BigNumber.from('0')
+  }, [auctioningToken, auctioningTokenDecimals, errorAuctioningToken, sellAmount])
 
   const submitTx = useCallback(
     async (txs: Transaction[]) => {
@@ -200,6 +207,8 @@ const App: React.FC = () => {
             disabled={
               !methods.formState.isValid ||
               !biddingToken ||
+              errorBiddingToken ||
+              errorAuctioningToken ||
               !auctioningToken ||
               methods.formState.isValidating
             }

@@ -1,5 +1,5 @@
 import { BigNumber } from 'ethers'
-import React, { useCallback, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 
 import { TextField } from '@gnosis.pm/safe-react-components'
@@ -20,15 +20,15 @@ interface ERC20InputProps extends InputProps {
 export const Input = ({ label, name }: InputProps) => {
   const { control, errors } = useFormContext()
 
+  const inputError = errors[name]
   const error = useMemo(() => {
-    const error = errors[name]
-    if (error) {
-      if (error.type === 'required') return 'Field required'
-      if (error.type === 'min') return 'Value should be greater than 0'
+    if (inputError) {
+      if (inputError.type === 'required') return 'Field required'
+      if (inputError.type === 'min') return 'Value should be greater than 0'
       return 'error'
     }
     return ''
-  }, [errors, name])
+  }, [inputError])
 
   return (
     <Controller
@@ -42,29 +42,30 @@ export const Input = ({ label, name }: InputProps) => {
   )
 }
 
-export const ERC20Input = ({ amount, label, name }: ERC20InputProps) => {
+export const ERC20Input = ({ amount, checkBalance, label, name }: ERC20InputProps) => {
   const { control, errors, watch } = useFormContext()
 
-  const address = watch()[name]
-  const { balance, error: contractError } = useERC20(address)
+  const address = watch(name)
+  const { balance, error: contractError } = useERC20({ address })
+  const [isBalanceEnough, setIsBalanceEnough] = useState(false)
+  const inputError = errors[name]
 
-  const isBalanceEnough = useCallback(async () => {
-    if (address && balance && amount) {
-      return balance.gt(amount)
+  useEffect(() => {
+    if (checkBalance && address && amount && amount.gt(BigNumber.from('0'))) {
+      setIsBalanceEnough(balance.gt(amount))
     } else {
-      return true
+      setIsBalanceEnough(true)
     }
-  }, [address, amount, balance])
+  }, [address, amount, balance, checkBalance])
 
   const error = useMemo(() => {
-    const error = errors[name]
-    if (error) {
-      if (error.type === 'required') return 'Field required'
-      if (error.type === 'isBalanceEnough') return 'Not enough balance'
-      return 'error'
-    }
+    if (inputError?.type === 'required') return 'Field required'
+    if (inputError?.type === 'pattern') return 'Invalid address'
+    if (contractError) return 'Invalid ERC20'
+    if (!isBalanceEnough) return 'Not enough balance'
     return ''
-  }, [errors, name])
+  }, [contractError, inputError?.type, isBalanceEnough])
+
   return (
     <Controller
       control={control}
@@ -72,7 +73,7 @@ export const ERC20Input = ({ amount, label, name }: ERC20InputProps) => {
       render={({ onChange, value }) => (
         <TextField label={label} meta={{ error }} onChange={onChange} value={value || ''} />
       )}
-      rules={{ required: true, pattern: ADDRESS_REGEX, validate: { isBalanceEnough } }}
+      rules={{ required: true, pattern: ADDRESS_REGEX }}
     />
   )
 }
