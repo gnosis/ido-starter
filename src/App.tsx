@@ -84,9 +84,7 @@ const App: React.FC = () => {
         const { safeTxHash } = await sdk.txs.send({
           txs,
         })
-        console.log({ safeTxHash })
-        const safeTx = await sdk.txs.getBySafeTxHash(safeTxHash)
-        console.log({ safeTx })
+        await sdk.txs.getBySafeTxHash(safeTxHash)
       } catch (e) {
         console.error(e)
       }
@@ -154,7 +152,8 @@ const App: React.FC = () => {
           auctionParams.allowListManager,
         ]),
       })
-
+      // eslint-disable-next-line no-warning-comments
+      // TODO Check errors and disable submit. Move to effect/memo
       return submitTx(txs)
     },
     [
