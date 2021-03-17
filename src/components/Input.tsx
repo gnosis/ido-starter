@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 
-import { TextField } from '@gnosis.pm/safe-react-components'
+import { Checkbox, TextField } from '@gnosis.pm/safe-react-components'
 
 import { useERC20 } from '../hooks/useERC20'
 import { ADDRESS_REGEX } from '../utils'
@@ -38,6 +38,20 @@ export const Input = ({ label, name }: InputProps) => {
         <TextField label={label} meta={{ error }} onChange={onChange} value={value || ''} />
       )}
       rules={{ required: true }}
+    />
+  )
+}
+
+export const WrappedCheckbox = ({ label, name }: InputProps) => {
+  const { control } = useFormContext()
+
+  return (
+    <Controller
+      control={control}
+      name={name}
+      render={({ onChange, value }) => (
+        <Checkbox checked={value || false} label={label} name={name} onChange={onChange} />
+      )}
     />
   )
 }
