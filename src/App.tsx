@@ -1,17 +1,17 @@
-import { utils } from 'ethers'
+import { BigNumber, utils } from 'ethers'
 import moment from 'moment'
 import React, { useCallback, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import styled from 'styled-components'
 
-import { SafeAppsSdkSigner } from '@gnosis.pm/safe-apps-ethers-provider'
 import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
 import { Transaction } from '@gnosis.pm/safe-apps-sdk'
 import { Button, Divider, Loader, Title } from '@gnosis.pm/safe-react-components'
 
 import { DateTimePicker } from './components/DateTimePicker'
-import { Input } from './components/Input'
-import { ERC20__factory as ERC20Factory, EasyAuction__factory as EasyAuctionFactory } from './types'
+import { ERC20Input, Input } from './components/Input'
+import { useERC20 } from './hooks/useERC20'
+import { useEasyAuctionContract } from './hooks/useEasyAuctionContract'
 
 type Auction = {
   auctioningToken: string
@@ -46,22 +46,36 @@ const Container = styled.form`
   grid-row-gap: 1rem;
 `
 
-// const ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/
-
 const App: React.FC = () => {
   const { safe, sdk } = useSafeAppsSDK()
   const [submitting, setSubmitting] = useState(false)
-  const [hasEnoughAuctioningTokenBalance, setHasEnoughAuctioningTokenBalance] = useState(true)
-  const methods = useForm<Required<Auction>>()
+  const methods = useForm<Required<Auction>>({ mode: 'all' })
 
-  const easyAuction = useMemo(
-    () =>
-      EasyAuctionFactory.connect(
-        '0x99e63218201e44549AB8a6Fa220e1018FDB48f79',
-        new SafeAppsSdkSigner(safe, sdk)
-      ),
-    [sdk, safe]
-  )
+  const easyAuction = useEasyAuctionContract()
+  const biddingTokenAddress = methods.watch()['biddingToken']
+  const auctioningTokenAddress = methods.watch()['auctioningToken']
+  const sellAmount = methods.watch()['sellAmount']
+
+  const {
+    decimals: biddingTokenDecimals,
+    error: errorBiddingToken,
+    token: biddingToken,
+  } = useERC20({
+    address: biddingTokenAddress,
+  })
+  const {
+    decimals: auctioningTokenDecimals,
+    error: errorAuctioningToken,
+    token: auctioningToken,
+  } = useERC20({
+    address: auctioningTokenAddress,
+  })
+
+  const sellAmountInAtoms = useMemo(() => {
+    return auctioningToken && auctioningTokenDecimals && sellAmount && !errorAuctioningToken
+      ? utils.parseUnits(sellAmount, auctioningTokenDecimals)
+      : BigNumber.from('0')
+  }, [auctioningToken, auctioningTokenDecimals, errorAuctioningToken, sellAmount])
 
   const submitTx = useCallback(
     async (txs: Transaction[]) => {
@@ -81,54 +95,36 @@ const App: React.FC = () => {
 
   const initiateNewAuction = useCallback(
     async (params: Auction) => {
+      if (!biddingToken || !auctioningToken) {
+        return
+      }
       const auctionParams = { ...DEFAULT_PARAMS, ...params }
 
-      const auctioningToken = ERC20Factory.connect(
-        auctionParams.auctioningToken,
-        new SafeAppsSdkSigner(safe, sdk)
-      )
-
-      const biddingToken = ERC20Factory.connect(
-        auctionParams.biddingToken,
-        new SafeAppsSdkSigner(safe, sdk)
-      )
-
-      const sellAmountsInAtoms = utils.parseUnits(
-        auctionParams.sellAmount,
-        await auctioningToken.decimals()
-      )
-      const minBuyAmountInAtoms = utils.parseUnits(
-        auctionParams.minBuyAmount,
-        await biddingToken.decimals()
-      )
+      const minBuyAmountInAtoms = utils.parseUnits(auctionParams.minBuyAmount, biddingTokenDecimals)
       const minParticipantsBuyAmount = utils.parseUnits(
         auctionParams.minBuyAmountPerOrder,
-        await biddingToken.decimals()
+        biddingTokenDecimals
       )
       const minFundingThresholdInAtoms = utils.parseUnits(
         auctionParams.minFundingThreshold,
-        await biddingToken.decimals()
+        biddingTokenDecimals
       )
 
       if (auctionParams.allowListManager !== '0x0000000000000000000000000000000000000000') {
         console.error('allowListManager not supported')
       }
 
-      const balance = await auctioningToken.balanceOf(safe.safeAddress)
-      const hasEnoughBalance = balance.gt(sellAmountsInAtoms)
-      setHasEnoughAuctioningTokenBalance(hasEnoughBalance)
-
       const allowance = await auctioningToken.allowance(safe.safeAddress, easyAuction.address)
 
       const txs: Transaction[] = []
 
-      if (sellAmountsInAtoms.gt(allowance)) {
+      if (sellAmountInAtoms.gt(allowance)) {
         txs.push({
           to: auctioningToken.address,
           value: '0',
           data: auctioningToken.interface.encodeFunctionData('approve', [
             easyAuction.address,
-            sellAmountsInAtoms,
+            sellAmountInAtoms,
           ]),
         })
       }
@@ -148,7 +144,7 @@ const App: React.FC = () => {
           biddingToken.address,
           Math.ceil(orderCancellationPeriod),
           Math.ceil(duration),
-          sellAmountsInAtoms,
+          sellAmountInAtoms,
           minBuyAmountInAtoms,
           minParticipantsBuyAmount,
           minFundingThresholdInAtoms,
@@ -160,7 +156,16 @@ const App: React.FC = () => {
       // TODO Check errors and disable submit. Move to effect/memo
       return submitTx(txs)
     },
-    [easyAuction.address, easyAuction.interface, safe, sdk, submitTx]
+    [
+      auctioningToken,
+      biddingToken,
+      biddingTokenDecimals,
+      easyAuction.address,
+      easyAuction.interface,
+      safe.safeAddress,
+      sellAmountInAtoms,
+      submitTx,
+    ]
   )
 
   return (
@@ -169,12 +174,13 @@ const App: React.FC = () => {
         <Title size="md">Start a new Gnosis Auction</Title>
         <Divider />
 
-        <Input
-          error={hasEnoughAuctioningTokenBalance ? '' : 'Not enough balance'}
+        <ERC20Input
+          amount={sellAmountInAtoms}
+          checkBalance
           label="Auctioning Token"
           name="auctioningToken"
         />
-        <Input label="Bidding Token" name="biddingToken" />
+        <ERC20Input checkBalance={false} label="Bidding Token" name="biddingToken" />
         <Input label="Number of tokens to auction off" name="sellAmount" />
         <Input label="Minimum number of tokens to receive in total" name="minBuyAmount" />
         <DateTimePicker label="End time for order cancellation" name="orderCancellationPeriod" />
@@ -197,6 +203,14 @@ const App: React.FC = () => {
         ) : (
           <Button
             color="primary"
+            disabled={
+              !methods.formState.isValid ||
+              !biddingToken ||
+              errorBiddingToken ||
+              errorAuctioningToken ||
+              !auctioningToken ||
+              methods.formState.isValidating
+            }
             onClick={async () => {
               const values = methods.getValues()
               await initiateNewAuction(values)
