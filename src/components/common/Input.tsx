@@ -4,8 +4,8 @@ import { Controller, useFormContext } from 'react-hook-form'
 
 import { Checkbox, TextField } from '@gnosis.pm/safe-react-components'
 
-import { useERC20 } from '../hooks/useERC20'
-import { ADDRESS_REGEX } from '../utils'
+import { useERC20 } from '../../hooks/useERC20'
+import { ADDRESS_REGEX } from '../../utils'
 
 interface InputProps {
   name: string
