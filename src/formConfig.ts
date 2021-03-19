@@ -14,16 +14,17 @@ export type Auction = {
 
 export type FormKeys = keyof Auction
 
-export const DEFAULT_FORM_PARAMS: Readonly<Record<FormKeys, string>> = {
+// TODO Improve type
+export const DEFAULT_FORM_PARAMS: Readonly<Record<FormKeys, any>> = {
   auctioningToken: '',
   biddingToken: '',
   sellAmount: '',
   minBuyAmount: '',
   minFundingThreshold: '0',
-  orderCancellationEndDate: '0',
-  auctionEndDate: '360000',
+  orderCancellationEndDate: '',
+  auctionEndDate: '',
   minBuyAmountPerOrder: '0.01',
-  isAtomicClosureAllowed: '',
+  isAtomicClosureAllowed: true,
   allowListManager: '0x0000000000000000000000000000000000000000',
   allowListData: '0x',
 }

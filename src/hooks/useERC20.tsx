@@ -15,7 +15,7 @@ export const useERC20 = (address: string) => {
   const [error, setError] = useState(false)
   const [balance, setBalance] = useState(BigNumber.from(0))
   const [decimals, setDecimals] = useState(18)
-  const isContract = useIsContract(token?.address || '')
+  const isContract = useIsContract(address)
 
   useEffect(() => {
     const fetchToken = async () => {

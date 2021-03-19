@@ -51,7 +51,12 @@ export const WrappedCheckbox = ({ label, name }: InputProps) => {
       control={control}
       name={name}
       render={({ onChange, value }) => (
-        <Checkbox checked={value || false} label={label} name={name} onChange={onChange} />
+        <Checkbox
+          checked={!!value}
+          label={label}
+          name={name}
+          onChange={(e) => onChange(e.target.checked)}
+        />
       )}
     />
   )

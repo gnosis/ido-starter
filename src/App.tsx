@@ -15,7 +15,7 @@ import { MinBuyAmountPerOrderInput } from './components/form/MinBuyAmountPerOrde
 import { MinFundingThresholdInput } from './components/form/MinFundingThresholdInput'
 import { OrderCancellationEndDatePicker } from './components/form/OrderCancellationEndDatePicker'
 import { SellAmountInput } from './components/form/SellAmountInput'
-import { Auction } from './formConfig'
+import { Auction, DEFAULT_FORM_PARAMS } from './formConfig'
 
 const Container = styled.form`
   margin-bottom: 2rem;
@@ -30,7 +30,10 @@ const Container = styled.form`
 
 const App: React.FC = () => {
   const [submitting, setSubmitting] = useState(false)
-  const formMethods = useForm<Required<Auction>>({ mode: 'all' })
+  const formMethods = useForm<Required<Auction>>({
+    mode: 'all',
+    defaultValues: DEFAULT_FORM_PARAMS,
+  })
   const { formState, getValues, reset } = formMethods
 
   return (
