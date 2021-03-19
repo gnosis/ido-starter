@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 
 import { TextField } from '@gnosis.pm/safe-react-components'
@@ -12,17 +12,19 @@ interface Props {
 export const DateTimePicker = ({ label, name }: Props) => {
   const { control } = useFormContext()
 
+  const now = useMemo(() => new Date(), [])
   return (
     <Controller
       control={control}
-      defaultValue={new Date()}
+      defaultValue={now}
       name={name}
       render={({ onChange, value }) => (
         <DatePicker
           customInput={<TextField label={label} value={value.toString()} />}
           dateFormat="MMMM d, yyyy h:mm aa"
+          minDate={now}
           onChange={onChange}
-          selected={value || new Date()}
+          selected={value || now}
           showTimeSelect
           timeCaption="time"
           timeFormat="HH:mm"

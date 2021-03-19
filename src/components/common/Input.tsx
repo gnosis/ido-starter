@@ -1,5 +1,5 @@
 import { BigNumber } from 'ethers'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 
 import { Checkbox, TextField } from '@gnosis.pm/safe-react-components'
@@ -25,6 +25,7 @@ export const Input = ({ label, name }: InputProps) => {
     if (inputError) {
       if (inputError.type === 'required') return 'Field required'
       if (inputError.type === 'min') return 'Value should be greater than 0'
+      if (inputError.type === 'manual') return inputError.message
       return 'error'
     }
     return ''
@@ -57,28 +58,33 @@ export const WrappedCheckbox = ({ label, name }: InputProps) => {
 }
 
 export const ERC20Input = ({ amount, checkBalance, label, name }: ERC20InputProps) => {
-  const { control, errors, watch } = useFormContext()
+  const { control, errors, setError, watch } = useFormContext()
 
   const address = watch(name)
-  const { balance, error: contractError } = useERC20({ address })
-  const [isBalanceEnough, setIsBalanceEnough] = useState(false)
+  const { balance, error: contractError } = useERC20(address)
   const inputError = errors[name]
 
   useEffect(() => {
-    if (checkBalance && address && amount && amount.gt(BigNumber.from('0'))) {
-      setIsBalanceEnough(balance.gt(amount))
-    } else {
-      setIsBalanceEnough(true)
+    if (contractError) {
+      setError(name, { type: 'notERC20', message: 'Invalid ERC20' })
     }
-  }, [address, amount, balance, checkBalance])
+  }, [address, amount, balance, checkBalance, contractError, name, setError])
+
+  useEffect(() => {
+    if (checkBalance && address && amount && amount.gt(BigNumber.from('0'))) {
+      if (balance.lt(amount)) {
+        setError(name, { type: 'balance', message: 'Not enough balance' })
+      }
+    }
+  }, [address, amount, balance, checkBalance, name, setError])
 
   const error = useMemo(() => {
     if (inputError?.type === 'required') return 'Field required'
     if (inputError?.type === 'pattern') return 'Invalid address'
-    if (contractError) return 'Invalid ERC20'
-    if (!isBalanceEnough) return 'Not enough balance'
+    if (inputError?.type === 'notERC20') return 'Invalid ERC20'
+    if (inputError?.type === 'balance') return 'Not enough balance'
     return ''
-  }, [contractError, inputError?.type, isBalanceEnough])
+  }, [inputError])
 
   return (
     <Controller

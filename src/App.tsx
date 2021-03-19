@@ -1,11 +1,7 @@
-import { utils } from 'ethers'
-import moment from 'moment'
-import React, { useCallback, useState } from 'react'
+import React, { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import styled from 'styled-components'
 
-import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
-import { Transaction } from '@gnosis.pm/safe-apps-sdk'
 import { Button, Divider, Loader, Title } from '@gnosis.pm/safe-react-components'
 
 import { AllowListDataInput } from './components/form/AllowListDataInput'
@@ -34,7 +30,7 @@ const Container = styled.form`
 
 const App: React.FC = () => {
   const [submitting, setSubmitting] = useState(false)
-  const formMethods = useForm<Required<Auction>>({ mode: 'all' })
+  const formMethods = useForm<Required<Auction>>({ mode: 'all', reValidateMode: 'onChange' })
   const { formState, getValues, reset } = formMethods
 
   return (
@@ -82,6 +78,7 @@ const App: React.FC = () => {
             }
             onClick={async () => {
               const values = getValues()
+              console.log('values Form', values)
               //await initiateNewAuction(values)
               reset()
             }}

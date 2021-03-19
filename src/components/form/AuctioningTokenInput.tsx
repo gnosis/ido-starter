@@ -19,9 +19,7 @@ export const AuctioningTokenInput = () => {
     decimals: auctioningTokenDecimals,
     error: auctioningTokenError,
     token: auctioningToken,
-  } = useERC20({
-    address: auctioningTokenAddress,
-  })
+  } = useERC20(auctioningTokenAddress)
 
   const sellAmountInAtoms = useMemo(() => {
     return auctioningToken && auctioningTokenDecimals && sellAmount && !auctioningTokenError

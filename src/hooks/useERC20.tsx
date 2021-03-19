@@ -6,26 +6,22 @@ import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
 
 import { ADDRESS_REGEX, Maybe } from '../utils'
 import { ERC20, ERC20__factory as ERC20Factory } from './../types'
+import { useIsContract } from './useIsContract'
 
-interface Props {
-  address: string
-}
-
-export const useERC20 = (props: Props) => {
+export const useERC20 = (address: string) => {
   const { safe, sdk } = useSafeAppsSDK()
 
   const [token, setToken] = useState<Maybe<ERC20>>(null)
   const [error, setError] = useState(false)
   const [balance, setBalance] = useState(BigNumber.from(0))
   const [decimals, setDecimals] = useState(18)
-  const address = props ? props.address : ''
+  const isContract = useIsContract(token?.address || '')
 
   useEffect(() => {
     const fetchToken = async () => {
       try {
         const provider = new SafeAppsSdkSigner(safe, sdk)
         const token = ERC20Factory.connect(address, provider)
-        const code = await sdk.eth.getCode([token.address])
 
         const balance = await token.balanceOf(safe.safeAddress)
         const decimals = await token.decimals()
@@ -33,7 +29,7 @@ export const useERC20 = (props: Props) => {
         const symbol = await token.symbol()
         const name = await token.name()
 
-        if (code !== '0x' && decimals && symbol && name) {
+        if (isContract && decimals && symbol && name) {
           setError(false)
           setToken(token)
           setDecimals(decimals)
@@ -51,7 +47,7 @@ export const useERC20 = (props: Props) => {
     if (address && ADDRESS_REGEX.test(address)) {
       fetchToken()
     }
-  }, [address, safe, sdk])
+  }, [address, isContract, safe, sdk])
 
   return { token, balance, decimals, error }
 }
