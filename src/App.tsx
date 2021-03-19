@@ -30,7 +30,7 @@ const Container = styled.form`
 
 const App: React.FC = () => {
   const [submitting, setSubmitting] = useState(false)
-  const formMethods = useForm<Required<Auction>>({ mode: 'all', reValidateMode: 'onChange' })
+  const formMethods = useForm<Required<Auction>>({ mode: 'all' })
   const { formState, getValues, reset } = formMethods
 
   return (
