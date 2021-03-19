@@ -14,7 +14,7 @@ export type Auction = {
 
 export type FormKeys = keyof Auction
 
-// TODO Improve type
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const DEFAULT_FORM_PARAMS: Readonly<Record<FormKeys, any>> = {
   auctioningToken: '',
   biddingToken: '',

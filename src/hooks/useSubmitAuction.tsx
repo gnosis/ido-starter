@@ -54,9 +54,7 @@ export const useSubmitAuction = () => {
         const { safeTxHash } = await sdk.txs.send({
           txs,
         })
-        console.log({ safeTxHash })
-        const safeTx = await sdk.txs.getBySafeTxHash(safeTxHash)
-        console.log({ safeTx })
+        await sdk.txs.getBySafeTxHash(safeTxHash)
       } catch (e) {
         console.error(e)
       }
