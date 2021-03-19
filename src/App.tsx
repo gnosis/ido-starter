@@ -16,6 +16,7 @@ import { MinFundingThresholdInput } from './components/form/MinFundingThresholdI
 import { OrderCancellationEndDatePicker } from './components/form/OrderCancellationEndDatePicker'
 import { SellAmountInput } from './components/form/SellAmountInput'
 import { Auction, DEFAULT_FORM_PARAMS } from './formConfig'
+import { useSubmitAuction } from './hooks/useSubmitAuction'
 
 const Container = styled.form`
   margin-bottom: 2rem;
@@ -35,6 +36,7 @@ const App: React.FC = () => {
     defaultValues: DEFAULT_FORM_PARAMS,
   })
   const { formState, getValues, reset } = formMethods
+  const { initiateNewAuction } = useSubmitAuction(formMethods)
 
   return (
     <FormProvider {...formMethods}>
@@ -83,8 +85,12 @@ const App: React.FC = () => {
               const values = getValues()
               // eslint-disable-next-line no-console
               console.log('values Form', values)
-              //await initiateNewAuction(values)
-              reset()
+              try {
+                await initiateNewAuction()
+                reset()
+              } catch (e) {
+                console.error('Error at initiate auction', e)
+              }
             }}
             size="lg"
           >

@@ -1,22 +1,22 @@
 import { utils } from 'ethers'
 import moment from 'moment'
 import { useCallback, useState } from 'react'
-import { useFormContext } from 'react-hook-form'
+import { UseFormMethods } from 'react-hook-form'
 
 import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
 import { Transaction } from '@gnosis.pm/safe-apps-sdk'
 
+import { Auction } from '../formConfig'
 import { useAllowance } from './useAllowance'
-import { useAmountInAtoms } from './useAmountInAtoms'
 import { useERC20 } from './useERC20'
 import { useEasyAuctionContract } from './useEasyAuctionContract'
 import { useIsContract } from './useIsContract'
 
-export const useSubmitAuction = () => {
+export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>) => {
   const [submitting, setSubmitting] = useState(false)
 
   const { safe, sdk } = useSafeAppsSDK()
-  const { setError, watch } = useFormContext()
+  const { setError, watch } = formMethods
   const easyAuction = useEasyAuctionContract()
 
   const auctioningTokenAddress = watch('auctioningToken')
@@ -42,11 +42,6 @@ export const useSubmitAuction = () => {
   const auctionEndDate = watch('auctionEndDate')
   const orderCancellationEndDate = watch('orderCancellationEndDate')
 
-  const minBuyAmountInAtoms = useAmountInAtoms(minBuyAmount, biddingTokenDecimals)
-  const minimumBiddingAmountPerOrder = useAmountInAtoms(minBuyAmountPerOrder, biddingTokenDecimals)
-  const minFundingThresholdInAtoms = useAmountInAtoms(minFundingThreshold, biddingTokenDecimals)
-  const sellAmountInAtoms = useAmountInAtoms(sellAmount, auctioningTokenDecimals)
-
   const submitTx = useCallback(
     async (txs: Transaction[]) => {
       setSubmitting(true)
@@ -64,10 +59,18 @@ export const useSubmitAuction = () => {
   )
 
   const initiateNewAuction = useCallback(async () => {
-    if (!auctioningToken || !biddingToken || !allowance || !sellAmountInAtoms) {
+    if (!auctioningToken || !biddingToken || !allowance) {
       console.error('InitiateNewAuction called without tokens')
       return
     }
+
+    const minBuyAmountInAtoms = utils.parseUnits(minBuyAmount, biddingTokenDecimals)
+    const minimumBiddingAmountPerOrder = utils.parseUnits(
+      minBuyAmountPerOrder,
+      biddingTokenDecimals
+    )
+    const minFundingThresholdInAtoms = utils.parseUnits(minFundingThreshold, biddingTokenDecimals)
+    const sellAmountInAtoms = utils.parseUnits(sellAmount, auctioningTokenDecimals)
 
     if (moment(auctionEndDate).isBefore(moment())) {
       setError('auctionEndDate', {
@@ -120,8 +123,8 @@ export const useSubmitAuction = () => {
       data: easyAuction.interface.encodeFunctionData('initiateAuction', [
         auctioningToken.address,
         biddingToken.address,
-        moment.unix(orderCancellationEndDate).toString(),
-        moment.unix(auctionEndDate).toString(),
+        moment(orderCancellationEndDate).unix().toString(),
+        moment(auctionEndDate).unix().toString(),
         sellAmountInAtoms,
         minBuyAmountInAtoms,
         minimumBiddingAmountPerOrder,
@@ -141,16 +144,18 @@ export const useSubmitAuction = () => {
     allowance,
     auctionEndDate,
     auctioningToken,
+    auctioningTokenDecimals,
     biddingToken,
+    biddingTokenDecimals,
     easyAuction.address,
     easyAuction.interface,
     isAtomicClosureAllowed,
-    minBuyAmountInAtoms,
-    minFundingThresholdInAtoms,
-    minimumBiddingAmountPerOrder,
+    minBuyAmount,
+    minBuyAmountPerOrder,
+    minFundingThreshold,
     orderCancellationEndDate,
     safe.network,
-    sellAmountInAtoms,
+    sellAmount,
     setError,
     submitTx,
   ])

@@ -18,8 +18,8 @@ export type FormKeys = keyof Auction
 export const DEFAULT_FORM_PARAMS: Readonly<Record<FormKeys, any>> = {
   auctioningToken: '',
   biddingToken: '',
-  sellAmount: '',
-  minBuyAmount: '',
+  sellAmount: '0',
+  minBuyAmount: '0',
   minFundingThreshold: '0',
   orderCancellationEndDate: '',
   auctionEndDate: '',
