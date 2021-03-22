@@ -62,7 +62,8 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
         const { safeTxHash } = await sdk.txs.send({
           txs,
         })
-        await sdk.txs.getBySafeTxHash(safeTxHash)
+        const result = await sdk.txs.getBySafeTxHash(safeTxHash)
+        return result
       } catch (e) {
         console.error('Error sending auction', e)
       }
@@ -138,7 +139,7 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
     }
 
     if (formHasErrors) {
-      return
+      throw new Error('Form completed with errors')
     }
 
     const txs: Transaction[] = []

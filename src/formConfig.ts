@@ -44,11 +44,12 @@ export const FORM_PARAMETERS: Readonly<Record<FormKeys, FormValues>> = {
   },
   sellAmount: {
     label: 'Number of tokens to auction off',
-    tooltipText: 'The amount of auctioningTokens to be sold in atoms',
+    tooltipText: 'The amount of auctioning tokens to be sold in atoms',
   },
   minBuyAmount: {
     label: 'Minimum number of tokens to receive in total',
-    tooltipText: 'The amount of biddingToken to be bought at least for selling sellAmount in atoms',
+    tooltipText:
+      'The amount of bidding token to be bought at least for selling the amount to sell in atoms',
   },
   minFundingThreshold: {
     label: 'Minimal Funding for executing the settlement',
@@ -64,21 +65,21 @@ export const FORM_PARAMETERS: Readonly<Record<FormKeys, FormValues>> = {
     tooltipText: 'The timestamp (in seconds) marking the end of the auction',
   },
   minBuyAmountPerOrder: {
-    label: 'Minimal buyAmount per order placed in the auction',
+    label: 'Minimal amount to buy per order placed in the auction',
     tooltipText:
-      'Describes the minimal buyAmount per order placed in the auction. This can be used in order to protect against too high gas costs for the settlement',
+      'Describes the minimal amount to buy per order placed in the auction. This can be used in order to protect against too high gas costs for the settlement',
   },
   isAtomicClosureAllowed: {
     label: 'Is allowed to be closed atomically',
     tooltipText: 'Describes whether the auction should be allowed to be closed atomically',
   },
   allowListManager: {
-    label: 'EOA for allowListManager',
+    label: 'AllowList Contract',
     tooltipText:
-      'Contract address for a potential allowListManger contract, if allow listing is wanted for the started auction',
+      'Contract address for a potential List Manager contract, if allow listing is wanted for the started auction',
   },
   allowListData: {
     label: 'Signer',
-    tooltipText: 'Provide data that is needed for the allowListManager',
+    tooltipText: 'Provide data that is needed for the List Manager',
   },
 }

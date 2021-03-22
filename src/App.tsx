@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import styled from 'styled-components'
 
@@ -30,13 +30,12 @@ const Container = styled.form`
 `
 
 const App: React.FC = () => {
-  const [submitting, setSubmitting] = useState(false)
   const formMethods = useForm<Required<Auction>>({
     mode: 'all',
     defaultValues: DEFAULT_FORM_PARAMS,
   })
   const { formState, getValues, reset } = formMethods
-  const { initiateNewAuction } = useSubmitAuction(formMethods)
+  const { initiateNewAuction, submitting } = useSubmitAuction(formMethods)
 
   return (
     <FormProvider {...formMethods}>
@@ -47,7 +46,6 @@ const App: React.FC = () => {
         <BiddingTokenInput />
         <SellAmountInput />
         <MinBuyAmountInput />
-        <Divider />
         <MinFundingThresholdInput />
         <OrderCancellationEndDatePicker />
         <AuctionEndDatePicker />
@@ -56,47 +54,27 @@ const App: React.FC = () => {
         <AllowListManagerInput />
         <AllowListDataInput />
 
-        {submitting ? (
-          <>
-            <Loader size="md" />
-            <br />
-            <Button
-              color="secondary"
-              onClick={() => {
-                setSubmitting(false)
-              }}
-              size="lg"
-            >
-              Cancel
-            </Button>
-          </>
-        ) : (
-          <Button
-            color="primary"
-            disabled={
-              !formState.isValid ||
-              // !biddingToken ||
-              // errorBiddingToken ||
-              // errorAuctioningToken ||
-              // !auctioningToken ||
-              formState.isValidating
-            }
-            onClick={async () => {
-              const values = getValues()
+        <Button
+          color="primary"
+          disabled={!formState.isValid || formState.isValidating}
+          onClick={async () => {
+            const values = getValues()
+            // eslint-disable-next-line no-console
+            console.log('Form Values', values)
+            try {
+              const result = await initiateNewAuction()
               // eslint-disable-next-line no-console
-              console.log('Form Values', values)
-              try {
-                await initiateNewAuction()
-                reset()
-              } catch (e) {
-                console.error('Error at initiate auction', e)
-              }
-            }}
-            size="lg"
-          >
-            Build transaction
-          </Button>
-        )}
+              console.log('result', result)
+              reset()
+            } catch (e) {
+              console.error('Error at initiate auction', e)
+            }
+          }}
+          size="lg"
+        >
+          {submitting && <Loader size="md" />}
+          Build transaction
+        </Button>
       </Container>
     </FormProvider>
   )
