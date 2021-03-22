@@ -84,7 +84,7 @@ const App: React.FC = () => {
             onClick={async () => {
               const values = getValues()
               // eslint-disable-next-line no-console
-              console.log('values Form', values)
+              console.log('Form Values', values)
               try {
                 await initiateNewAuction()
                 reset()

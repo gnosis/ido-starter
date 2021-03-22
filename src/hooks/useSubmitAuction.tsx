@@ -81,7 +81,6 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
       return
     }
 
-    console.log('Decimals used', auctioningTokenDecimals, biddingTokenDecimals)
     const minBuyAmountInAtoms = utils.parseUnits(minBuyAmount, biddingTokenDecimals)
     const minimumBiddingAmountPerOrder = utils.parseUnits(
       minBuyAmountPerOrder,
@@ -111,14 +110,6 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
       formHasErrors = true
     }
 
-    console.log(
-      'dates',
-      auctionEndDate,
-      orderCancellationEndDate,
-      moment(orderCancellationEndDate),
-      moment(auctionEndDate)
-    )
-
     if (allowListManager && ADDRESS_REGEX.test(allowListManager)) {
       const allowListManagerIsContract = await checkIsContract(sdk, allowListManager)
       if (!allowListManagerIsContract) {
@@ -129,6 +120,7 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
         formHasErrors = true
       }
     } else {
+      // eslint-disable-next-line no-console
       console.log('AllowListManager not set or not an address')
       useDefaultAllowListManager = true
     }
@@ -140,6 +132,7 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
         formHasErrors = true
       }
     } else {
+      // eslint-disable-next-line no-console
       console.log('AllowListData/Signer not set or not an address')
       useDefaultAllowListData = true
     }
@@ -177,7 +170,8 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
         : utils.defaultAbiCoder.encode(['address'], [allowListData]),
     ]
 
-    console.log('Values sent to the contract', valuesToSend)
+    // eslint-disable-next-line no-console
+    console.log('Values sent to the contract, different ordering', valuesToSend)
     txs.push({
       to: easyAuction.address,
       value: '0',

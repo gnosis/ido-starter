@@ -1,9 +1,3 @@
-import { useEffect, useState } from 'react'
-
-import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
-
-import { ADDRESS_REGEX } from '../utils'
-
 // TODO sdk should be SafeInfoSDK
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const checkIsContract = async (sdk: any, address: string): Promise<boolean> => {

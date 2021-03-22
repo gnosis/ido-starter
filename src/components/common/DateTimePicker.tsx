@@ -22,7 +22,11 @@ export const DateTimePicker = ({ label, name }: Props) => {
       render={({ onChange, value }) => (
         <DatePicker
           customInput={
-            <TextField label={label} meta={{ error }} value={value ? value.toString() : ''} />
+            <TextField
+              label={label}
+              meta={{ error: error ? error.message : '' }}
+              value={value ? value.toString() : ''}
+            />
           }
           dateFormat="MMMM d, yyyy h:mm aa"
           minDate={now}
