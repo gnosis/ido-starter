@@ -10,9 +10,10 @@ interface Props {
   label: string
 }
 export const DateTimePicker = ({ label, name }: Props) => {
-  const { control } = useFormContext()
+  const { control, errors } = useFormContext()
 
   const now = useMemo(() => new Date(), [])
+  const error = errors[name]
   return (
     <Controller
       control={control}
@@ -20,7 +21,9 @@ export const DateTimePicker = ({ label, name }: Props) => {
       name={name}
       render={({ onChange, value }) => (
         <DatePicker
-          customInput={<TextField label={label} value={value.toString()} />}
+          customInput={
+            <TextField label={label} meta={{ error }} value={value ? value.toString() : ''} />
+          }
           dateFormat="MMMM d, yyyy h:mm aa"
           minDate={now}
           onChange={onChange}
@@ -31,6 +34,7 @@ export const DateTimePicker = ({ label, name }: Props) => {
           timeIntervals={15}
         />
       )}
+      rules={{ required: true }}
     />
   )
 }
