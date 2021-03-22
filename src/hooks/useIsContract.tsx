@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-warning-comments
 // TODO sdk should be SafeInfoSDK
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const checkIsContract = async (sdk: any, address: string): Promise<boolean> => {
