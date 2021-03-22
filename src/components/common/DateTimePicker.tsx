@@ -4,7 +4,6 @@ import { Controller, useFormContext } from 'react-hook-form'
 import { TextField } from '@gnosis.pm/safe-react-components'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-
 interface Props {
   name: string
   label: string
@@ -22,6 +21,7 @@ export const DateTimePicker = ({ label, name }: Props) => {
       name={name}
       render={({ onChange, value }) => (
         <DatePicker
+          calendarClassName="calendar"
           customInput={
             <TextField
               label={label}
@@ -37,6 +37,7 @@ export const DateTimePicker = ({ label, name }: Props) => {
           timeCaption="time"
           timeFormat="HH:mm"
           timeIntervals={15}
+          wrapperClassName="date-picker-wrapper"
         />
       )}
       rules={{ required: true }}

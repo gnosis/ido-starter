@@ -21,12 +21,13 @@ import { useSubmitAuction } from './hooks/useSubmitAuction'
 const Container = styled.form`
   margin-bottom: 2rem;
   width: 100%;
-  max-width: 480px;
-
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-column-gap: 1rem;
-  grid-row-gap: 1rem;
+  max-width: 760px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
 `
 
 const App: React.FC = () => {
