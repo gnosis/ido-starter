@@ -10,14 +10,10 @@ import { ADDRESS_REGEX } from '../../utils'
 interface InputProps {
   name: string
   label: string
+  isRequired?: boolean
 }
 
-interface ERC20InputProps extends InputProps {
-  checkBalance: boolean
-  amount?: BigNumber
-}
-
-export const Input = ({ label, name }: InputProps) => {
+export const Input = ({ isRequired = true, label, name }: InputProps) => {
   const { control, errors } = useFormContext()
 
   const inputError = errors[name]
@@ -38,7 +34,7 @@ export const Input = ({ label, name }: InputProps) => {
       render={({ onChange, value }) => (
         <TextField label={label} meta={{ error }} onChange={onChange} value={value || ''} />
       )}
-      rules={{ required: true }}
+      rules={{ required: isRequired }}
     />
   )
 }
@@ -62,7 +58,19 @@ export const WrappedCheckbox = ({ label, name }: InputProps) => {
   )
 }
 
-export const ERC20Input = ({ amount, checkBalance, label, name }: ERC20InputProps) => {
+interface ERC20InputProps extends InputProps {
+  checkBalance: boolean
+  amount?: BigNumber
+  isRequired?: boolean
+}
+
+export const ERC20Input = ({
+  amount,
+  checkBalance,
+  isRequired = true,
+  label,
+  name,
+}: ERC20InputProps) => {
   const { control, errors, setError, watch } = useFormContext()
 
   const address = watch(name)
@@ -98,7 +106,7 @@ export const ERC20Input = ({ amount, checkBalance, label, name }: ERC20InputProp
       render={({ onChange, value }) => (
         <TextField label={label} meta={{ error }} onChange={onChange} value={value || ''} />
       )}
-      rules={{ required: true, pattern: ADDRESS_REGEX }}
+      rules={{ required: isRequired, pattern: ADDRESS_REGEX }}
     />
   )
 }

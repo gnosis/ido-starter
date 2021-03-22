@@ -6,7 +6,7 @@ import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
 
 import { ADDRESS_REGEX, Maybe } from '../utils'
 import { ERC20, ERC20__factory as ERC20Factory } from './../types'
-import { useIsContract } from './useIsContract'
+import { checkIsContract } from './useIsContract'
 
 export const useERC20 = (address: string) => {
   const { safe, sdk } = useSafeAppsSDK()
@@ -15,7 +15,6 @@ export const useERC20 = (address: string) => {
   const [error, setError] = useState(false)
   const [balance, setBalance] = useState(BigNumber.from(0))
   const [decimals, setDecimals] = useState(18)
-  const isContract = useIsContract(address)
 
   useEffect(() => {
     const fetchToken = async () => {
@@ -28,6 +27,7 @@ export const useERC20 = (address: string) => {
 
         const symbol = await token.symbol()
         const name = await token.name()
+        const isContract = await checkIsContract(sdk, address)
 
         if (isContract && decimals && symbol && name) {
           setError(false)
@@ -47,7 +47,7 @@ export const useERC20 = (address: string) => {
     if (address && ADDRESS_REGEX.test(address)) {
       fetchToken()
     }
-  }, [address, isContract, safe, sdk])
+  }, [address, safe, sdk])
 
   return { token, balance, decimals, error }
 }

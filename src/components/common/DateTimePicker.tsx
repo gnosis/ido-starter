@@ -16,7 +16,7 @@ export const DateTimePicker = ({ label, name }: Props) => {
   return (
     <Controller
       control={control}
-      defaultValue={now}
+      defaultValue={null}
       name={name}
       render={({ onChange, value }) => (
         <DatePicker
@@ -24,7 +24,7 @@ export const DateTimePicker = ({ label, name }: Props) => {
           dateFormat="MMMM d, yyyy h:mm aa"
           minDate={now}
           onChange={onChange}
-          selected={value || now}
+          selected={value}
           showTimeSelect
           timeCaption="time"
           timeFormat="HH:mm"

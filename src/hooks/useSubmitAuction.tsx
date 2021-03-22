@@ -1,17 +1,32 @@
-import { utils } from 'ethers'
+import { BigNumberish, BytesLike, utils } from 'ethers'
 import moment from 'moment'
 import { useCallback, useState } from 'react'
 import { UseFormMethods } from 'react-hook-form'
 
 import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
 import { Transaction } from '@gnosis.pm/safe-apps-sdk'
+import { formatBytes32String } from 'ethers/lib/utils'
 
 import { Auction } from '../formConfig'
+import { ADDRESS_REGEX } from '../utils'
 import { useAllowance } from './useAllowance'
 import { useERC20 } from './useERC20'
 import { useEasyAuctionContract } from './useEasyAuctionContract'
-import { useIsContract } from './useIsContract'
+import { checkIsContract } from './useIsContract'
 
+type ValuesToSend = [
+  string,
+  string,
+  BigNumberish,
+  BigNumberish,
+  BigNumberish,
+  BigNumberish,
+  BigNumberish,
+  BigNumberish,
+  boolean,
+  string,
+  BytesLike
+]
 export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>) => {
   const [submitting, setSubmitting] = useState(false)
 
@@ -33,9 +48,7 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
   const minBuyAmountPerOrder = watch('minBuyAmountPerOrder')
   const minFundingThreshold = watch('minFundingThreshold')
   const allowListManager = watch('allowListManager')
-  const allowListManagerIsContract = useIsContract(allowListManager)
   const allowListData = watch('allowListData')
-  const allowListDataIsContract = useIsContract(allowListData)
 
   const sellAmount = watch('sellAmount')
   const isAtomicClosureAllowed = watch('isAtomicClosureAllowed')
@@ -51,7 +64,7 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
         })
         await sdk.txs.getBySafeTxHash(safeTxHash)
       } catch (e) {
-        console.error(e)
+        console.error('Error sending auction', e)
       }
       setSubmitting(false)
     },
@@ -59,11 +72,16 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
   )
 
   const initiateNewAuction = useCallback(async () => {
+    let formHasErrors = false
+    let useDefaultAllowListManager = false
+    let useDefaultAllowListData = false
+
     if (!auctioningToken || !biddingToken || !allowance) {
       console.error('InitiateNewAuction called without tokens')
       return
     }
 
+    console.log('Decimals used', auctioningTokenDecimals, biddingTokenDecimals)
     const minBuyAmountInAtoms = utils.parseUnits(minBuyAmount, biddingTokenDecimals)
     const minimumBiddingAmountPerOrder = utils.parseUnits(
       minBuyAmountPerOrder,
@@ -78,7 +96,7 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
         message: 'Auction End Date should be in the future',
       })
 
-      return
+      formHasErrors = true
     }
 
     if (
@@ -90,18 +108,44 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
         message: 'Order cancellation End Date should be in the future and before auction End Date',
       })
 
+      formHasErrors = true
+    }
+
+    console.log(
+      'dates',
+      auctionEndDate,
+      orderCancellationEndDate,
+      moment(orderCancellationEndDate),
+      moment(auctionEndDate)
+    )
+
+    if (allowListManager && ADDRESS_REGEX.test(allowListManager)) {
+      const allowListManagerIsContract = await checkIsContract(sdk, allowListManager)
+      if (!allowListManagerIsContract) {
+        setError('allowListManager', {
+          type: 'manual',
+          message: `allowListManager should be a contract deployed in ${safe.network}`,
+        })
+        formHasErrors = true
+      }
+    } else {
+      console.log('AllowListManager not set or not an address')
+      useDefaultAllowListManager = true
+    }
+
+    if (allowListData && ADDRESS_REGEX.test(allowListData)) {
+      const allowListDataIsContract = await checkIsContract(sdk, allowListData)
+      if (allowListDataIsContract) {
+        setError('allowListData', { type: 'manual', message: 'allowListData should be an EOA' })
+        formHasErrors = true
+      }
+    } else {
+      console.log('AllowListData/Signer not set or not an address')
+      useDefaultAllowListData = true
+    }
+
+    if (formHasErrors) {
       return
-    }
-
-    if (allowListDataIsContract) {
-      setError('allowListData', { type: 'manual', message: 'allowListData should be an EOA' })
-    }
-
-    if (!allowListManagerIsContract) {
-      setError('allowListManager', {
-        type: 'manual',
-        message: `allowListManager should be a contract deployed in ${safe.network}`,
-      })
     }
 
     const txs: Transaction[] = []
@@ -117,30 +161,33 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
       })
     }
 
+    const valuesToSend: ValuesToSend = [
+      auctioningToken.address,
+      biddingToken.address,
+      moment(orderCancellationEndDate).unix().toString(),
+      moment(auctionEndDate).unix().toString(),
+      sellAmountInAtoms,
+      minBuyAmountInAtoms,
+      minimumBiddingAmountPerOrder,
+      minFundingThresholdInAtoms,
+      !!isAtomicClosureAllowed,
+      useDefaultAllowListManager ? '0x0000000000000000000000000000000000000000' : allowListManager,
+      useDefaultAllowListData
+        ? formatBytes32String('0x')
+        : utils.defaultAbiCoder.encode(['address'], [allowListData]),
+    ]
+
+    console.log('Values sent to the contract', valuesToSend)
     txs.push({
       to: easyAuction.address,
       value: '0',
-      data: easyAuction.interface.encodeFunctionData('initiateAuction', [
-        auctioningToken.address,
-        biddingToken.address,
-        moment(orderCancellationEndDate).unix().toString(),
-        moment(auctionEndDate).unix().toString(),
-        sellAmountInAtoms,
-        minBuyAmountInAtoms,
-        minimumBiddingAmountPerOrder,
-        minFundingThresholdInAtoms,
-        !!isAtomicClosureAllowed,
-        allowListManager,
-        utils.defaultAbiCoder.encode(['address'], [allowListData]),
-      ]),
+      data: easyAuction.interface.encodeFunctionData('initiateAuction', valuesToSend),
     })
 
     return submitTx(txs)
   }, [
     allowListData,
-    allowListDataIsContract,
     allowListManager,
-    allowListManagerIsContract,
     allowance,
     auctionEndDate,
     auctioningToken,
@@ -155,6 +202,7 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
     minFundingThreshold,
     orderCancellationEndDate,
     safe.network,
+    sdk,
     sellAmount,
     setError,
     submitTx,

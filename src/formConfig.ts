@@ -25,8 +25,8 @@ export const DEFAULT_FORM_PARAMS: Readonly<Record<FormKeys, any>> = {
   auctionEndDate: '',
   minBuyAmountPerOrder: '0.01',
   isAtomicClosureAllowed: true,
-  allowListManager: '0x0000000000000000000000000000000000000000',
-  allowListData: '0x',
+  allowListManager: '',
+  allowListData: '',
 }
 
 type FormValues = {
@@ -78,7 +78,7 @@ export const FORM_PARAMETERS: Readonly<Record<FormKeys, FormValues>> = {
       'Contract address for a potential allowListManger contract, if allow listing is wanted for the started auction',
   },
   allowListData: {
-    label: 'Data for allowListManager',
-    tooltipText: 'provide data that is needed for the allowListManager',
+    label: 'Signer',
+    tooltipText: 'Provide data that is needed for the allowListManager',
   },
 }
