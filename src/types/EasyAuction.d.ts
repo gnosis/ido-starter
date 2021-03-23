@@ -24,6 +24,7 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface EasyAuctionInterface extends ethers.utils.Interface {
   functions: {
     "FEE_DENOMINATOR()": FunctionFragment;
+    "auctionAccessData(uint256)": FunctionFragment;
     "auctionAccessManager(uint256)": FunctionFragment;
     "auctionCounter()": FunctionFragment;
     "auctionData(uint256)": FunctionFragment;
@@ -34,10 +35,11 @@ interface EasyAuctionInterface extends ethers.utils.Interface {
     "feeReceiverUserId()": FunctionFragment;
     "getSecondsRemainingInBatch(uint256)": FunctionFragment;
     "getUserId(address)": FunctionFragment;
-    "initiateAuction(address,address,uint256,uint256,uint96,uint96,uint256,uint256,bool,address)": FunctionFragment;
+    "initiateAuction(address,address,uint256,uint256,uint96,uint96,uint256,uint256,bool,address,bytes)": FunctionFragment;
     "numUsers()": FunctionFragment;
     "owner()": FunctionFragment;
     "placeSellOrders(uint256,uint96[],uint96[],bytes32[],bytes)": FunctionFragment;
+    "placeSellOrdersOnBehalf(uint256,uint96[],uint96[],bytes32[],bytes,address)": FunctionFragment;
     "precalculateSellAmountSum(uint256,uint256)": FunctionFragment;
     "registerUser(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
@@ -50,6 +52,10 @@ interface EasyAuctionInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "FEE_DENOMINATOR",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "auctionAccessData",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "auctionAccessManager",
@@ -100,7 +106,8 @@ interface EasyAuctionInterface extends ethers.utils.Interface {
       BigNumberish,
       BigNumberish,
       boolean,
-      string
+      string,
+      BytesLike
     ]
   ): string;
   encodeFunctionData(functionFragment: "numUsers", values?: undefined): string;
@@ -113,6 +120,17 @@ interface EasyAuctionInterface extends ethers.utils.Interface {
       BigNumberish[],
       BytesLike[],
       BytesLike
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "placeSellOrdersOnBehalf",
+    values: [
+      BigNumberish,
+      BigNumberish[],
+      BigNumberish[],
+      BytesLike[],
+      BytesLike,
+      string
     ]
   ): string;
   encodeFunctionData(
@@ -152,6 +170,10 @@ interface EasyAuctionInterface extends ethers.utils.Interface {
 
   decodeFunctionResult(
     functionFragment: "FEE_DENOMINATOR",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "auctionAccessData",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -202,6 +224,10 @@ interface EasyAuctionInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "placeSellOrdersOnBehalf",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "precalculateSellAmountSum",
     data: BytesLike
   ): Result;
@@ -234,7 +260,7 @@ interface EasyAuctionInterface extends ethers.utils.Interface {
     "AuctionCleared(uint256,uint96,uint96,bytes32)": EventFragment;
     "CancellationSellOrder(uint256,uint64,uint96,uint96)": EventFragment;
     "ClaimedFromOrder(uint256,uint64,uint96,uint96)": EventFragment;
-    "NewAuction(uint256,address,address,uint256,uint256,uint96,uint96,uint256,uint256,address)": EventFragment;
+    "NewAuction(uint256,address,address,uint256,uint256,uint64,uint96,uint96,uint256,uint256,address,bytes)": EventFragment;
     "NewSellOrder(uint256,uint64,uint96,uint96)": EventFragment;
     "NewUser(uint64,address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
@@ -298,6 +324,16 @@ export class EasyAuction extends Contract {
     FEE_DENOMINATOR(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     "FEE_DENOMINATOR()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    auctionAccessData(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    "auctionAccessData(uint256)"(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     auctionAccessManager(
       arg0: BigNumberish,
@@ -454,28 +490,30 @@ export class EasyAuction extends Contract {
     initiateAuction(
       _auctioningToken: string,
       _biddingToken: string,
-      orderCancelationPeriodDuration: BigNumberish,
-      duration: BigNumberish,
+      orderCancellationEndDate: BigNumberish,
+      auctionEndDate: BigNumberish,
       _auctionedSellAmount: BigNumberish,
       _minBuyAmount: BigNumberish,
       minimumBiddingAmountPerOrder: BigNumberish,
       minFundingThreshold: BigNumberish,
       isAtomicClosureAllowed: boolean,
-      allowListManager: string,
+      accessManagerContract: string,
+      accessManagerContractData: BytesLike,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "initiateAuction(address,address,uint256,uint256,uint96,uint96,uint256,uint256,bool,address)"(
+    "initiateAuction(address,address,uint256,uint256,uint96,uint96,uint256,uint256,bool,address,bytes)"(
       _auctioningToken: string,
       _biddingToken: string,
-      orderCancelationPeriodDuration: BigNumberish,
-      duration: BigNumberish,
+      orderCancellationEndDate: BigNumberish,
+      auctionEndDate: BigNumberish,
       _auctionedSellAmount: BigNumberish,
       _minBuyAmount: BigNumberish,
       minimumBiddingAmountPerOrder: BigNumberish,
       minFundingThreshold: BigNumberish,
       isAtomicClosureAllowed: boolean,
-      allowListManager: string,
+      accessManagerContract: string,
+      accessManagerContractData: BytesLike,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
@@ -483,14 +521,8 @@ export class EasyAuction extends Contract {
 
     "numUsers()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    /**
-     * Returns the address of the current owner.
-     */
     owner(overrides?: CallOverrides): Promise<[string]>;
 
-    /**
-     * Returns the address of the current owner.
-     */
     "owner()"(overrides?: CallOverrides): Promise<[string]>;
 
     placeSellOrders(
@@ -508,6 +540,26 @@ export class EasyAuction extends Contract {
       _sellAmounts: BigNumberish[],
       _prevSellOrders: BytesLike[],
       allowListCallData: BytesLike,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    placeSellOrdersOnBehalf(
+      auctionId: BigNumberish,
+      _minBuyAmounts: BigNumberish[],
+      _sellAmounts: BigNumberish[],
+      _prevSellOrders: BytesLike[],
+      allowListCallData: BytesLike,
+      orderSubmitter: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "placeSellOrdersOnBehalf(uint256,uint96[],uint96[],bytes32[],bytes,address)"(
+      auctionId: BigNumberish,
+      _minBuyAmounts: BigNumberish[],
+      _sellAmounts: BigNumberish[],
+      _prevSellOrders: BytesLike[],
+      allowListCallData: BytesLike,
+      orderSubmitter: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
@@ -533,14 +585,8 @@ export class EasyAuction extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    /**
-     * Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner.
-     */
     renounceOwnership(overrides?: Overrides): Promise<ContractTransaction>;
 
-    /**
-     * Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner.
-     */
     "renounceOwnership()"(overrides?: Overrides): Promise<ContractTransaction>;
 
     setFeeParameters(
@@ -583,17 +629,11 @@ export class EasyAuction extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    /**
-     * Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.
-     */
     transferOwnership(
       newOwner: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    /**
-     * Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.
-     */
     "transferOwnership(address)"(
       newOwner: string,
       overrides?: Overrides
@@ -603,6 +643,16 @@ export class EasyAuction extends Contract {
   FEE_DENOMINATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
   "FEE_DENOMINATOR()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+  auctionAccessData(
+    arg0: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  "auctionAccessData(uint256)"(
+    arg0: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   auctionAccessManager(
     arg0: BigNumberish,
@@ -756,28 +806,30 @@ export class EasyAuction extends Contract {
   initiateAuction(
     _auctioningToken: string,
     _biddingToken: string,
-    orderCancelationPeriodDuration: BigNumberish,
-    duration: BigNumberish,
+    orderCancellationEndDate: BigNumberish,
+    auctionEndDate: BigNumberish,
     _auctionedSellAmount: BigNumberish,
     _minBuyAmount: BigNumberish,
     minimumBiddingAmountPerOrder: BigNumberish,
     minFundingThreshold: BigNumberish,
     isAtomicClosureAllowed: boolean,
-    allowListManager: string,
+    accessManagerContract: string,
+    accessManagerContractData: BytesLike,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "initiateAuction(address,address,uint256,uint256,uint96,uint96,uint256,uint256,bool,address)"(
+  "initiateAuction(address,address,uint256,uint256,uint96,uint96,uint256,uint256,bool,address,bytes)"(
     _auctioningToken: string,
     _biddingToken: string,
-    orderCancelationPeriodDuration: BigNumberish,
-    duration: BigNumberish,
+    orderCancellationEndDate: BigNumberish,
+    auctionEndDate: BigNumberish,
     _auctionedSellAmount: BigNumberish,
     _minBuyAmount: BigNumberish,
     minimumBiddingAmountPerOrder: BigNumberish,
     minFundingThreshold: BigNumberish,
     isAtomicClosureAllowed: boolean,
-    allowListManager: string,
+    accessManagerContract: string,
+    accessManagerContractData: BytesLike,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
@@ -785,14 +837,8 @@ export class EasyAuction extends Contract {
 
   "numUsers()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-  /**
-   * Returns the address of the current owner.
-   */
   owner(overrides?: CallOverrides): Promise<string>;
 
-  /**
-   * Returns the address of the current owner.
-   */
   "owner()"(overrides?: CallOverrides): Promise<string>;
 
   placeSellOrders(
@@ -810,6 +856,26 @@ export class EasyAuction extends Contract {
     _sellAmounts: BigNumberish[],
     _prevSellOrders: BytesLike[],
     allowListCallData: BytesLike,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  placeSellOrdersOnBehalf(
+    auctionId: BigNumberish,
+    _minBuyAmounts: BigNumberish[],
+    _sellAmounts: BigNumberish[],
+    _prevSellOrders: BytesLike[],
+    allowListCallData: BytesLike,
+    orderSubmitter: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "placeSellOrdersOnBehalf(uint256,uint96[],uint96[],bytes32[],bytes,address)"(
+    auctionId: BigNumberish,
+    _minBuyAmounts: BigNumberish[],
+    _sellAmounts: BigNumberish[],
+    _prevSellOrders: BytesLike[],
+    allowListCallData: BytesLike,
+    orderSubmitter: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
@@ -835,14 +901,8 @@ export class EasyAuction extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  /**
-   * Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner.
-   */
   renounceOwnership(overrides?: Overrides): Promise<ContractTransaction>;
 
-  /**
-   * Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner.
-   */
   "renounceOwnership()"(overrides?: Overrides): Promise<ContractTransaction>;
 
   setFeeParameters(
@@ -885,17 +945,11 @@ export class EasyAuction extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  /**
-   * Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.
-   */
   transferOwnership(
     newOwner: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  /**
-   * Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.
-   */
   "transferOwnership(address)"(
     newOwner: string,
     overrides?: Overrides
@@ -905,6 +959,16 @@ export class EasyAuction extends Contract {
     FEE_DENOMINATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
     "FEE_DENOMINATOR()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    auctionAccessData(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "auctionAccessData(uint256)"(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     auctionAccessManager(
       arg0: BigNumberish,
@@ -1068,28 +1132,30 @@ export class EasyAuction extends Contract {
     initiateAuction(
       _auctioningToken: string,
       _biddingToken: string,
-      orderCancelationPeriodDuration: BigNumberish,
-      duration: BigNumberish,
+      orderCancellationEndDate: BigNumberish,
+      auctionEndDate: BigNumberish,
       _auctionedSellAmount: BigNumberish,
       _minBuyAmount: BigNumberish,
       minimumBiddingAmountPerOrder: BigNumberish,
       minFundingThreshold: BigNumberish,
       isAtomicClosureAllowed: boolean,
-      allowListManager: string,
+      accessManagerContract: string,
+      accessManagerContractData: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "initiateAuction(address,address,uint256,uint256,uint96,uint96,uint256,uint256,bool,address)"(
+    "initiateAuction(address,address,uint256,uint256,uint96,uint96,uint256,uint256,bool,address,bytes)"(
       _auctioningToken: string,
       _biddingToken: string,
-      orderCancelationPeriodDuration: BigNumberish,
-      duration: BigNumberish,
+      orderCancellationEndDate: BigNumberish,
+      auctionEndDate: BigNumberish,
       _auctionedSellAmount: BigNumberish,
       _minBuyAmount: BigNumberish,
       minimumBiddingAmountPerOrder: BigNumberish,
       minFundingThreshold: BigNumberish,
       isAtomicClosureAllowed: boolean,
-      allowListManager: string,
+      accessManagerContract: string,
+      accessManagerContractData: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1097,14 +1163,8 @@ export class EasyAuction extends Contract {
 
     "numUsers()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    /**
-     * Returns the address of the current owner.
-     */
     owner(overrides?: CallOverrides): Promise<string>;
 
-    /**
-     * Returns the address of the current owner.
-     */
     "owner()"(overrides?: CallOverrides): Promise<string>;
 
     placeSellOrders(
@@ -1122,6 +1182,26 @@ export class EasyAuction extends Contract {
       _sellAmounts: BigNumberish[],
       _prevSellOrders: BytesLike[],
       allowListCallData: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    placeSellOrdersOnBehalf(
+      auctionId: BigNumberish,
+      _minBuyAmounts: BigNumberish[],
+      _sellAmounts: BigNumberish[],
+      _prevSellOrders: BytesLike[],
+      allowListCallData: BytesLike,
+      orderSubmitter: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "placeSellOrdersOnBehalf(uint256,uint96[],uint96[],bytes32[],bytes,address)"(
+      auctionId: BigNumberish,
+      _minBuyAmounts: BigNumberish[],
+      _sellAmounts: BigNumberish[],
+      _prevSellOrders: BytesLike[],
+      allowListCallData: BytesLike,
+      orderSubmitter: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1144,14 +1224,8 @@ export class EasyAuction extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    /**
-     * Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner.
-     */
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
-    /**
-     * Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner.
-     */
     "renounceOwnership()"(overrides?: CallOverrides): Promise<void>;
 
     setFeeParameters(
@@ -1194,17 +1268,11 @@ export class EasyAuction extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    /**
-     * Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.
-     */
     transferOwnership(
       newOwner: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    /**
-     * Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.
-     */
     "transferOwnership(address)"(
       newOwner: string,
       overrides?: CallOverrides
@@ -1263,11 +1331,13 @@ export class EasyAuction extends Contract {
       _biddingToken: string | null,
       orderCancellationEndDate: null,
       auctionEndDate: null,
+      userId: null,
       _auctionedSellAmount: null,
       _minBuyAmount: null,
       minimumBiddingAmountPerOrder: null,
       minFundingThreshold: null,
-      allowListManager: null
+      allowListContract: null,
+      allowListData: null
     ): TypedEventFilter<
       [
         BigNumber,
@@ -1279,6 +1349,8 @@ export class EasyAuction extends Contract {
         BigNumber,
         BigNumber,
         BigNumber,
+        BigNumber,
+        string,
         string
       ],
       {
@@ -1287,11 +1359,13 @@ export class EasyAuction extends Contract {
         _biddingToken: string;
         orderCancellationEndDate: BigNumber;
         auctionEndDate: BigNumber;
+        userId: BigNumber;
         _auctionedSellAmount: BigNumber;
         _minBuyAmount: BigNumber;
         minimumBiddingAmountPerOrder: BigNumber;
         minFundingThreshold: BigNumber;
-        allowListManager: string;
+        allowListContract: string;
+        allowListData: string;
       }
     >;
 
@@ -1339,6 +1413,16 @@ export class EasyAuction extends Contract {
     FEE_DENOMINATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
     "FEE_DENOMINATOR()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    auctionAccessData(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "auctionAccessData(uint256)"(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     auctionAccessManager(
       arg0: BigNumberish,
@@ -1428,28 +1512,30 @@ export class EasyAuction extends Contract {
     initiateAuction(
       _auctioningToken: string,
       _biddingToken: string,
-      orderCancelationPeriodDuration: BigNumberish,
-      duration: BigNumberish,
+      orderCancellationEndDate: BigNumberish,
+      auctionEndDate: BigNumberish,
       _auctionedSellAmount: BigNumberish,
       _minBuyAmount: BigNumberish,
       minimumBiddingAmountPerOrder: BigNumberish,
       minFundingThreshold: BigNumberish,
       isAtomicClosureAllowed: boolean,
-      allowListManager: string,
+      accessManagerContract: string,
+      accessManagerContractData: BytesLike,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "initiateAuction(address,address,uint256,uint256,uint96,uint96,uint256,uint256,bool,address)"(
+    "initiateAuction(address,address,uint256,uint256,uint96,uint96,uint256,uint256,bool,address,bytes)"(
       _auctioningToken: string,
       _biddingToken: string,
-      orderCancelationPeriodDuration: BigNumberish,
-      duration: BigNumberish,
+      orderCancellationEndDate: BigNumberish,
+      auctionEndDate: BigNumberish,
       _auctionedSellAmount: BigNumberish,
       _minBuyAmount: BigNumberish,
       minimumBiddingAmountPerOrder: BigNumberish,
       minFundingThreshold: BigNumberish,
       isAtomicClosureAllowed: boolean,
-      allowListManager: string,
+      accessManagerContract: string,
+      accessManagerContractData: BytesLike,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
@@ -1457,14 +1543,8 @@ export class EasyAuction extends Contract {
 
     "numUsers()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    /**
-     * Returns the address of the current owner.
-     */
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
-    /**
-     * Returns the address of the current owner.
-     */
     "owner()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     placeSellOrders(
@@ -1482,6 +1562,26 @@ export class EasyAuction extends Contract {
       _sellAmounts: BigNumberish[],
       _prevSellOrders: BytesLike[],
       allowListCallData: BytesLike,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    placeSellOrdersOnBehalf(
+      auctionId: BigNumberish,
+      _minBuyAmounts: BigNumberish[],
+      _sellAmounts: BigNumberish[],
+      _prevSellOrders: BytesLike[],
+      allowListCallData: BytesLike,
+      orderSubmitter: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "placeSellOrdersOnBehalf(uint256,uint96[],uint96[],bytes32[],bytes,address)"(
+      auctionId: BigNumberish,
+      _minBuyAmounts: BigNumberish[],
+      _sellAmounts: BigNumberish[],
+      _prevSellOrders: BytesLike[],
+      allowListCallData: BytesLike,
+      orderSubmitter: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
@@ -1504,14 +1604,8 @@ export class EasyAuction extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    /**
-     * Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner.
-     */
     renounceOwnership(overrides?: Overrides): Promise<BigNumber>;
 
-    /**
-     * Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner.
-     */
     "renounceOwnership()"(overrides?: Overrides): Promise<BigNumber>;
 
     setFeeParameters(
@@ -1554,17 +1648,11 @@ export class EasyAuction extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    /**
-     * Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.
-     */
     transferOwnership(
       newOwner: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    /**
-     * Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.
-     */
     "transferOwnership(address)"(
       newOwner: string,
       overrides?: Overrides
@@ -1575,6 +1663,16 @@ export class EasyAuction extends Contract {
     FEE_DENOMINATOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "FEE_DENOMINATOR()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    auctionAccessData(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "auctionAccessData(uint256)"(
+      arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1673,28 +1771,30 @@ export class EasyAuction extends Contract {
     initiateAuction(
       _auctioningToken: string,
       _biddingToken: string,
-      orderCancelationPeriodDuration: BigNumberish,
-      duration: BigNumberish,
+      orderCancellationEndDate: BigNumberish,
+      auctionEndDate: BigNumberish,
       _auctionedSellAmount: BigNumberish,
       _minBuyAmount: BigNumberish,
       minimumBiddingAmountPerOrder: BigNumberish,
       minFundingThreshold: BigNumberish,
       isAtomicClosureAllowed: boolean,
-      allowListManager: string,
+      accessManagerContract: string,
+      accessManagerContractData: BytesLike,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "initiateAuction(address,address,uint256,uint256,uint96,uint96,uint256,uint256,bool,address)"(
+    "initiateAuction(address,address,uint256,uint256,uint96,uint96,uint256,uint256,bool,address,bytes)"(
       _auctioningToken: string,
       _biddingToken: string,
-      orderCancelationPeriodDuration: BigNumberish,
-      duration: BigNumberish,
+      orderCancellationEndDate: BigNumberish,
+      auctionEndDate: BigNumberish,
       _auctionedSellAmount: BigNumberish,
       _minBuyAmount: BigNumberish,
       minimumBiddingAmountPerOrder: BigNumberish,
       minFundingThreshold: BigNumberish,
       isAtomicClosureAllowed: boolean,
-      allowListManager: string,
+      accessManagerContract: string,
+      accessManagerContractData: BytesLike,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
@@ -1702,14 +1802,8 @@ export class EasyAuction extends Contract {
 
     "numUsers()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    /**
-     * Returns the address of the current owner.
-     */
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    /**
-     * Returns the address of the current owner.
-     */
     "owner()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     placeSellOrders(
@@ -1727,6 +1821,26 @@ export class EasyAuction extends Contract {
       _sellAmounts: BigNumberish[],
       _prevSellOrders: BytesLike[],
       allowListCallData: BytesLike,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    placeSellOrdersOnBehalf(
+      auctionId: BigNumberish,
+      _minBuyAmounts: BigNumberish[],
+      _sellAmounts: BigNumberish[],
+      _prevSellOrders: BytesLike[],
+      allowListCallData: BytesLike,
+      orderSubmitter: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "placeSellOrdersOnBehalf(uint256,uint96[],uint96[],bytes32[],bytes,address)"(
+      auctionId: BigNumberish,
+      _minBuyAmounts: BigNumberish[],
+      _sellAmounts: BigNumberish[],
+      _prevSellOrders: BytesLike[],
+      allowListCallData: BytesLike,
+      orderSubmitter: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
@@ -1752,14 +1866,8 @@ export class EasyAuction extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    /**
-     * Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner.
-     */
     renounceOwnership(overrides?: Overrides): Promise<PopulatedTransaction>;
 
-    /**
-     * Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner.
-     */
     "renounceOwnership()"(overrides?: Overrides): Promise<PopulatedTransaction>;
 
     setFeeParameters(
@@ -1802,17 +1910,11 @@ export class EasyAuction extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    /**
-     * Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.
-     */
     transferOwnership(
       newOwner: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    /**
-     * Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.
-     */
     "transferOwnership(address)"(
       newOwner: string,
       overrides?: Overrides

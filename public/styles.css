@@ -1,0 +1,7 @@
+.calendar {
+  z-index: 5 !important;
+}
+
+.date-picker-wrapper {
+  width: 100%;
+}
