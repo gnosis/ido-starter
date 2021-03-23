@@ -5,7 +5,6 @@ import { UseFormMethods } from 'react-hook-form'
 
 import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
 import { Transaction } from '@gnosis.pm/safe-apps-sdk'
-import { formatBytes32String } from 'ethers/lib/utils'
 
 import { Auction } from '../formConfig'
 import { ADDRESS_REGEX } from '../utils'
@@ -85,7 +84,7 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
     }
 
     const minBuyAmountInAtoms = utils.parseUnits(minBuyAmount, biddingTokenDecimals)
-    const minimumBiddingAmountPerOrder = utils.parseUnits(
+    const minBuytAmountPerOrderInAtoms = utils.parseUnits(
       minBuyAmountPerOrder,
       biddingTokenDecimals
     )
@@ -164,13 +163,11 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
       moment(auctionEndDate).unix().toString(),
       sellAmountInAtoms,
       minBuyAmountInAtoms,
-      minimumBiddingAmountPerOrder,
+      minBuytAmountPerOrderInAtoms,
       minFundingThresholdInAtoms,
       !!isAtomicClosureAllowed,
       useDefaultAllowListManager ? '0x0000000000000000000000000000000000000000' : allowListManager,
-      useDefaultAllowListData
-        ? formatBytes32String('0x')
-        : utils.defaultAbiCoder.encode(['address'], [allowListData]),
+      useDefaultAllowListData ? '0x' : utils.defaultAbiCoder.encode(['address'], [allowListData]),
     ]
 
     // eslint-disable-next-line no-console

@@ -58,11 +58,11 @@ export const FORM_PARAMETERS: Readonly<Record<FormKeys, FormValues>> = {
   },
   orderCancellationEndDate: {
     label: 'End time for order cancellation',
-    tooltipText: 'The timestamp (in seconds) until which orders can be canceled',
+    tooltipText: 'Choose a time (local) until users are still able to cancel orders',
   },
   auctionEndDate: {
     label: 'Auction end time',
-    tooltipText: 'The timestamp (in seconds) marking the end of the auction',
+    tooltipText: 'Choose a time (local) marking the end of the auction.',
   },
   minBuyAmountPerOrder: {
     label: 'Minimal amount to buy per order placed in the auction',
@@ -74,12 +74,12 @@ export const FORM_PARAMETERS: Readonly<Record<FormKeys, FormValues>> = {
     tooltipText: 'Describes whether the auction should be allowed to be closed atomically',
   },
   allowListManager: {
-    label: 'AllowList Contract',
+    label: 'AllowList Contract (Optional)',
     tooltipText:
       'Contract address for a potential List Manager contract, if allow listing is wanted for the started auction',
   },
   allowListData: {
-    label: 'Signer',
+    label: 'Signer (Optional)',
     tooltipText: 'Provide data that is needed for the List Manager',
   },
 }
