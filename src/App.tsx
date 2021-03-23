@@ -63,9 +63,7 @@ const App: React.FC = () => {
             // eslint-disable-next-line no-console
             console.log('Form Values', values)
             try {
-              const result = await initiateNewAuction()
-              // eslint-disable-next-line no-console
-              console.log('result', result)
+              await initiateNewAuction()
               reset()
             } catch (e) {
               console.error('Error at initiate auction', e)

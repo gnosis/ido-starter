@@ -62,8 +62,10 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
         const { safeTxHash } = await sdk.txs.send({
           txs,
         })
-        const result = await sdk.txs.getBySafeTxHash(safeTxHash)
-        return result
+        // eslint-disable-next-line no-console
+        console.log(safeTxHash)
+        const safeTx = await sdk.txs.getBySafeTxHash(safeTxHash)
+        return safeTx
       } catch (e) {
         console.error('Error sending auction', e)
       }

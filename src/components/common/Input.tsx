@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers'
+import { BigNumber, utils } from 'ethers'
 import React, { useEffect, useMemo } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 
@@ -60,36 +60,48 @@ export const WrappedCheckbox = ({ label, name }: InputProps) => {
 
 interface ERC20InputProps extends InputProps {
   checkBalance: boolean
-  amount?: BigNumber
+  compareWith?: string
   isRequired?: boolean
 }
 
 export const ERC20Input = ({
-  amount,
   checkBalance,
+  compareWith,
   isRequired = true,
   label,
   name,
 }: ERC20InputProps) => {
-  const { control, errors, setError, watch } = useFormContext()
+  const { clearErrors, control, errors, setError, watch } = useFormContext()
 
+  const amount = watch(compareWith, '')
   const address = watch(name)
-  const { balance, error: contractError } = useERC20(address)
+  const { balance, decimals, error: contractError, token } = useERC20(address)
   const inputError = errors[name]
+
+  const amountInAtoms = useMemo(() => {
+    return checkBalance && token && decimals && amount && !contractError
+      ? utils.parseUnits(amount, decimals)
+      : BigNumber.from('0')
+  }, [checkBalance, token, decimals, amount, contractError])
 
   useEffect(() => {
     if (contractError) {
       setError(name, { type: 'notERC20', message: 'Invalid ERC20' })
+    } else if (errors[name]) {
+      // This check avoid excessive re renderings
+      clearErrors(name)
     }
-  }, [address, amount, balance, checkBalance, contractError, name, setError])
+  }, [address, amount, balance, checkBalance, clearErrors, contractError, errors, name, setError])
 
   useEffect(() => {
-    if (checkBalance && address && amount && amount.gt(BigNumber.from('0'))) {
-      if (balance.lt(amount)) {
+    if (checkBalance && address && amountInAtoms && amountInAtoms.gt(BigNumber.from('0'))) {
+      if (balance.lt(amountInAtoms)) {
         setError(name, { type: 'balance', message: 'Not enough balance' })
+      } else if (errors[name]) {
+        clearErrors(name)
       }
     }
-  }, [address, amount, balance, checkBalance, name, setError])
+  }, [address, amount, amountInAtoms, balance, checkBalance, clearErrors, errors, name, setError])
 
   const error = useMemo(() => {
     if (inputError?.type === 'required') return 'Field required'
