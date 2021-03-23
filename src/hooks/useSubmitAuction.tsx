@@ -91,7 +91,13 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
     const minFundingThresholdInAtoms = utils.parseUnits(minFundingThreshold, biddingTokenDecimals)
     const sellAmountInAtoms = utils.parseUnits(sellAmount, auctioningTokenDecimals)
 
-    if (moment(auctionEndDate).isBefore(moment())) {
+    const auctionEndDateMoment = moment(auctionEndDate).seconds(0).milliseconds(0)
+    const orderCancellationEndDateMoment = moment(orderCancellationEndDate)
+      .seconds(0)
+      .milliseconds(0)
+    const now = moment().seconds(0).milliseconds(0)
+
+    if (auctionEndDateMoment.isBefore(now)) {
       setError('auctionEndDate', {
         type: 'manual',
         message: 'Auction End Date should be in the future',
@@ -100,13 +106,19 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
       formHasErrors = true
     }
 
-    if (
-      moment(orderCancellationEndDate).isBefore(moment()) ||
-      moment(orderCancellationEndDate).isAfter(moment(auctionEndDate))
-    ) {
+    if (orderCancellationEndDateMoment.isBefore(now)) {
       setError('orderCancellationEndDate', {
         type: 'manual',
-        message: 'Order cancellation End Date should be in the future and before auction End Date',
+        message: 'Order cancellation End Date should be in the future',
+      })
+
+      formHasErrors = true
+    }
+
+    if (orderCancellationEndDateMoment.isAfter(auctionEndDateMoment)) {
+      setError('orderCancellationEndDate', {
+        type: 'manual',
+        message: 'Order cancellation End Date should be before auction End Date',
       })
 
       formHasErrors = true
@@ -159,8 +171,8 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
     const valuesToSend: ValuesToSend = [
       auctioningToken.address,
       biddingToken.address,
-      moment(orderCancellationEndDate).unix().toString(),
-      moment(auctionEndDate).unix().toString(),
+      orderCancellationEndDateMoment.unix().toString(),
+      auctionEndDateMoment.unix().toString(),
       sellAmountInAtoms,
       minBuyAmountInAtoms,
       minBuytAmountPerOrderInAtoms,
