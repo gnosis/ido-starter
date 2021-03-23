@@ -32,6 +32,7 @@ export const DateTimePicker = ({ label, name }: Props) => {
           dateFormat="MMMM d, yyyy h:mm aa"
           minDate={now}
           onChange={onChange}
+          popperClassName="calendar"
           selected={value}
           showTimeSelect
           timeCaption="time"
