@@ -24,7 +24,7 @@ export const DEFAULT_FORM_PARAMS: Readonly<Record<FormKeys, any>> = {
   orderCancellationEndDate: '',
   auctionEndDate: '',
   minBuyAmountPerOrder: '0.01',
-  isAtomicClosureAllowed: true,
+  isAtomicClosureAllowed: false,
   allowListManager: '',
   allowListData: '',
 }
