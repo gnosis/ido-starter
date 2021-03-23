@@ -35,6 +35,7 @@ const App: React.FC = () => {
     mode: 'all',
     defaultValues: DEFAULT_FORM_PARAMS,
   })
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { formState, getValues, reset } = formMethods
   const { initiateNewAuction, submitting } = useSubmitAuction(formMethods)
 
@@ -64,7 +65,7 @@ const App: React.FC = () => {
             console.log('Form Values', values)
             try {
               await initiateNewAuction()
-              reset()
+              //reset()
             } catch (e) {
               console.error('Error at initiate auction', e)
             }

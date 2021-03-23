@@ -48,7 +48,7 @@ jobs:
           PORT: 3000
           HTTPS: false
           REACT_APP_INFURA_ID: 4bf032f2d38a4ed6bb975b80d6340847
-          REACT_APP_EASY_AUCTION_RINKEBY_ADDRESS: '0x99e63218201e44549AB8a6Fa220e1018FDB48f79'
+          REACT_APP_EASY_AUCTION_RINKEBY_ADDRESS: '0x307C1384EFeF241d6CBBFb1F85a04C54307Ac9F6'
       - name: Get PR number
         uses: jwalton/gh-find-current-pr@v1
         id: findPr
