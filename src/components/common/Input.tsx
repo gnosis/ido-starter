@@ -1,6 +1,6 @@
 import { BigNumber, utils } from 'ethers'
 import React, { useEffect, useMemo } from 'react'
-import { Controller, useFormContext } from 'react-hook-form'
+import { Controller, RegisterOptions, useFormContext } from 'react-hook-form'
 
 import { Checkbox, TextField } from '@gnosis.pm/safe-react-components'
 
@@ -10,19 +10,19 @@ import { ADDRESS_REGEX } from '../../utils'
 interface InputProps {
   name: string
   label: string
-  isRequired?: boolean
+  rules?: RegisterOptions
 }
 
-export const Input = ({ isRequired = true, label, name }: InputProps) => {
+export const Input = ({ rules = {}, label, name }: InputProps) => {
   const { control, errors } = useFormContext()
 
   const inputError = errors[name]
   const error = useMemo(() => {
-    if (inputError) {
+    if (inputError && inputError.type) {
       if (inputError.type === 'required') return 'Field required'
-      if (inputError.type === 'min') return 'Value should be greater than 0'
-      if (inputError.type === 'manual') return inputError.message
-      return 'error'
+      if (inputError.type === 'pattern') return 'Invalid value'
+
+      return inputError.message
     }
     return ''
   }, [inputError])
@@ -34,7 +34,7 @@ export const Input = ({ isRequired = true, label, name }: InputProps) => {
       render={({ onChange, value }) => (
         <TextField label={label} meta={{ error }} onChange={onChange} value={value || ''} />
       )}
-      rules={{ required: isRequired }}
+      rules={rules}
     />
   )
 }
