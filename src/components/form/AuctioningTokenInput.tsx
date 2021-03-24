@@ -1,55 +1,20 @@
-import { BigNumber, utils } from 'ethers'
-import React, { useEffect, useMemo } from 'react'
-import { Controller, useFormContext, useWatch } from 'react-hook-form'
+import React, { useMemo } from 'react'
+import { Controller, useFormContext } from 'react-hook-form'
 
 import { TextField } from '@gnosis.pm/safe-react-components'
 
-import { DEFAULT_FORM_PARAMS, FORM_PARAMETERS, FormKeys } from '../../formConfig'
-import { useERC20 } from '../../hooks/useERC20'
+import { FORM_PARAMETERS, FormKeys } from '../../formConfig'
 import { ADDRESS_REGEX } from '../../utils'
 import { IconTooltip } from '../common/IconTooltip'
 import { InputLineContainer } from '../common/InputLineContainer'
 
 const formKey: FormKeys = 'auctioningToken'
 export const AuctioningTokenInput = () => {
-  console.log('AUCTIONING TOKEN')
   const { label, tooltipText } = FORM_PARAMETERS[formKey]
 
-  const { clearErrors, control, errors, setError } = useFormContext()
+  const { control, errors } = useFormContext()
 
-  const address = useWatch<string>({ name: formKey, defaultValue: DEFAULT_FORM_PARAMS[formKey] })
-  const amount = useWatch<string>({
-    name: 'sellAmount',
-    defaultValue: DEFAULT_FORM_PARAMS[formKey],
-  })
-
-  const { balance, decimals, error: contractError, token } = useERC20(address)
   const inputError = errors[formKey]
-
-  const amountInAtoms = useMemo(() => {
-    return token && decimals && amount && !contractError
-      ? utils.parseUnits(amount, decimals)
-      : BigNumber.from('0')
-  }, [amount, contractError, decimals, token])
-
-  useEffect(() => {
-    if (contractError) {
-      setError(formKey, { type: 'notERC20', message: 'Invalid ERC20' })
-    } else if (inputError && inputError.type === 'notERC20') {
-      // This check avoid excessive re renderings
-      clearErrors(formKey)
-    }
-  }, [clearErrors, contractError, inputError, setError])
-
-  useEffect(() => {
-    if (address && amountInAtoms && amountInAtoms.gt(BigNumber.from('0'))) {
-      if (balance.lt(amountInAtoms)) {
-        setError(formKey, { type: 'balance', message: 'Not enough balance' })
-      } else if (inputError && inputError.type === 'balance') {
-        clearErrors(formKey)
-      }
-    }
-  }, [address, amountInAtoms, balance, clearErrors, inputError, setError])
 
   const error = useMemo(() => {
     if (inputError) {

@@ -15,6 +15,7 @@ const errorValues = {
   token: null,
   decimals: 18,
   balance: BigNumber.from(0),
+  symbol: '',
 }
 
 export const fetchToken = async (address: string, safe: SafeInfo, sdk: SafeAppsSDK) => {
@@ -34,6 +35,7 @@ export const fetchToken = async (address: string, safe: SafeInfo, sdk: SafeAppsS
       token: token,
       decimals: decimals,
       balance: balance,
+      symbol: symbol,
     }
   } else {
     return errorValues
@@ -45,6 +47,7 @@ export type ERC20Data = {
   error: boolean
   balance: BigNumber
   decimals: number
+  symbol: string
 }
 
 export const useERC20 = (address: string) => {
@@ -55,6 +58,7 @@ export const useERC20 = (address: string) => {
     error: false,
     balance: BigNumber.from(0),
     decimals: 18,
+    symbol: '',
   })
 
   const setValues = useCallback((values) => {
