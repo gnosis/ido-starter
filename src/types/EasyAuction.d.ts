@@ -9,13 +9,11 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-} from "ethers";
-import {
   Contract,
   ContractTransaction,
   Overrides,
   CallOverrides,
-} from "@ethersproject/contracts";
+} from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
@@ -426,25 +424,25 @@ export class EasyAuction extends Contract {
     cancelSellOrders(
       auctionId: BigNumberish,
       _sellOrders: BytesLike[],
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "cancelSellOrders(uint256,bytes32[])"(
       auctionId: BigNumberish,
       _sellOrders: BytesLike[],
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     claimFromParticipantOrder(
       auctionId: BigNumberish,
       orders: BytesLike[],
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "claimFromParticipantOrder(uint256,bytes32[])"(
       auctionId: BigNumberish,
       orders: BytesLike[],
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     containsOrder(
@@ -479,12 +477,12 @@ export class EasyAuction extends Contract {
 
     getUserId(
       user: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "getUserId(address)"(
       user: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     initiateAuction(
@@ -499,7 +497,7 @@ export class EasyAuction extends Contract {
       isAtomicClosureAllowed: boolean,
       accessManagerContract: string,
       accessManagerContractData: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "initiateAuction(address,address,uint256,uint256,uint96,uint96,uint256,uint256,bool,address,bytes)"(
@@ -514,7 +512,7 @@ export class EasyAuction extends Contract {
       isAtomicClosureAllowed: boolean,
       accessManagerContract: string,
       accessManagerContractData: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     numUsers(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -531,7 +529,7 @@ export class EasyAuction extends Contract {
       _sellAmounts: BigNumberish[],
       _prevSellOrders: BytesLike[],
       allowListCallData: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "placeSellOrders(uint256,uint96[],uint96[],bytes32[],bytes)"(
@@ -540,7 +538,7 @@ export class EasyAuction extends Contract {
       _sellAmounts: BigNumberish[],
       _prevSellOrders: BytesLike[],
       allowListCallData: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     placeSellOrdersOnBehalf(
@@ -550,7 +548,7 @@ export class EasyAuction extends Contract {
       _prevSellOrders: BytesLike[],
       allowListCallData: BytesLike,
       orderSubmitter: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "placeSellOrdersOnBehalf(uint256,uint96[],uint96[],bytes32[],bytes,address)"(
@@ -560,55 +558,59 @@ export class EasyAuction extends Contract {
       _prevSellOrders: BytesLike[],
       allowListCallData: BytesLike,
       orderSubmitter: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     precalculateSellAmountSum(
       auctionId: BigNumberish,
       iterationSteps: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "precalculateSellAmountSum(uint256,uint256)"(
       auctionId: BigNumberish,
       iterationSteps: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     registerUser(
       user: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "registerUser(address)"(
       user: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    renounceOwnership(overrides?: Overrides): Promise<ContractTransaction>;
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
-    "renounceOwnership()"(overrides?: Overrides): Promise<ContractTransaction>;
+    "renounceOwnership()"(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     setFeeParameters(
       newFeeNumerator: BigNumberish,
       newfeeReceiverAddress: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "setFeeParameters(uint256,address)"(
       newFeeNumerator: BigNumberish,
       newfeeReceiverAddress: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     settleAuction(
       auctionId: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "settleAuction(uint256)"(
       auctionId: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     settleAuctionAtomically(
@@ -617,7 +619,7 @@ export class EasyAuction extends Contract {
       _sellAmount: BigNumberish[],
       _prevSellOrder: BytesLike[],
       allowListCallData: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "settleAuctionAtomically(uint256,uint96[],uint96[],bytes32[],bytes)"(
@@ -626,17 +628,17 @@ export class EasyAuction extends Contract {
       _sellAmount: BigNumberish[],
       _prevSellOrder: BytesLike[],
       allowListCallData: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     transferOwnership(
       newOwner: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     "transferOwnership(address)"(
       newOwner: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
@@ -745,25 +747,25 @@ export class EasyAuction extends Contract {
   cancelSellOrders(
     auctionId: BigNumberish,
     _sellOrders: BytesLike[],
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "cancelSellOrders(uint256,bytes32[])"(
     auctionId: BigNumberish,
     _sellOrders: BytesLike[],
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   claimFromParticipantOrder(
     auctionId: BigNumberish,
     orders: BytesLike[],
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "claimFromParticipantOrder(uint256,bytes32[])"(
     auctionId: BigNumberish,
     orders: BytesLike[],
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   containsOrder(
@@ -796,11 +798,14 @@ export class EasyAuction extends Contract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  getUserId(user: string, overrides?: Overrides): Promise<ContractTransaction>;
+  getUserId(
+    user: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   "getUserId(address)"(
     user: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   initiateAuction(
@@ -815,7 +820,7 @@ export class EasyAuction extends Contract {
     isAtomicClosureAllowed: boolean,
     accessManagerContract: string,
     accessManagerContractData: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "initiateAuction(address,address,uint256,uint256,uint96,uint96,uint256,uint256,bool,address,bytes)"(
@@ -830,7 +835,7 @@ export class EasyAuction extends Contract {
     isAtomicClosureAllowed: boolean,
     accessManagerContract: string,
     accessManagerContractData: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   numUsers(overrides?: CallOverrides): Promise<BigNumber>;
@@ -847,7 +852,7 @@ export class EasyAuction extends Contract {
     _sellAmounts: BigNumberish[],
     _prevSellOrders: BytesLike[],
     allowListCallData: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "placeSellOrders(uint256,uint96[],uint96[],bytes32[],bytes)"(
@@ -856,7 +861,7 @@ export class EasyAuction extends Contract {
     _sellAmounts: BigNumberish[],
     _prevSellOrders: BytesLike[],
     allowListCallData: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   placeSellOrdersOnBehalf(
@@ -866,7 +871,7 @@ export class EasyAuction extends Contract {
     _prevSellOrders: BytesLike[],
     allowListCallData: BytesLike,
     orderSubmitter: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "placeSellOrdersOnBehalf(uint256,uint96[],uint96[],bytes32[],bytes,address)"(
@@ -876,55 +881,59 @@ export class EasyAuction extends Contract {
     _prevSellOrders: BytesLike[],
     allowListCallData: BytesLike,
     orderSubmitter: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   precalculateSellAmountSum(
     auctionId: BigNumberish,
     iterationSteps: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "precalculateSellAmountSum(uint256,uint256)"(
     auctionId: BigNumberish,
     iterationSteps: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   registerUser(
     user: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "registerUser(address)"(
     user: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  renounceOwnership(overrides?: Overrides): Promise<ContractTransaction>;
+  renounceOwnership(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
-  "renounceOwnership()"(overrides?: Overrides): Promise<ContractTransaction>;
+  "renounceOwnership()"(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   setFeeParameters(
     newFeeNumerator: BigNumberish,
     newfeeReceiverAddress: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "setFeeParameters(uint256,address)"(
     newFeeNumerator: BigNumberish,
     newfeeReceiverAddress: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   settleAuction(
     auctionId: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "settleAuction(uint256)"(
     auctionId: BigNumberish,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   settleAuctionAtomically(
@@ -933,7 +942,7 @@ export class EasyAuction extends Contract {
     _sellAmount: BigNumberish[],
     _prevSellOrder: BytesLike[],
     allowListCallData: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "settleAuctionAtomically(uint256,uint96[],uint96[],bytes32[],bytes)"(
@@ -942,17 +951,17 @@ export class EasyAuction extends Contract {
     _sellAmount: BigNumberish[],
     _prevSellOrder: BytesLike[],
     allowListCallData: BytesLike,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   transferOwnership(
     newOwner: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   "transferOwnership(address)"(
     newOwner: string,
-    overrides?: Overrides
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -1451,25 +1460,25 @@ export class EasyAuction extends Contract {
     cancelSellOrders(
       auctionId: BigNumberish,
       _sellOrders: BytesLike[],
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "cancelSellOrders(uint256,bytes32[])"(
       auctionId: BigNumberish,
       _sellOrders: BytesLike[],
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     claimFromParticipantOrder(
       auctionId: BigNumberish,
       orders: BytesLike[],
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "claimFromParticipantOrder(uint256,bytes32[])"(
       auctionId: BigNumberish,
       orders: BytesLike[],
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     containsOrder(
@@ -1502,11 +1511,14 @@ export class EasyAuction extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getUserId(user: string, overrides?: Overrides): Promise<BigNumber>;
+    getUserId(
+      user: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     "getUserId(address)"(
       user: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     initiateAuction(
@@ -1521,7 +1533,7 @@ export class EasyAuction extends Contract {
       isAtomicClosureAllowed: boolean,
       accessManagerContract: string,
       accessManagerContractData: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "initiateAuction(address,address,uint256,uint256,uint96,uint96,uint256,uint256,bool,address,bytes)"(
@@ -1536,7 +1548,7 @@ export class EasyAuction extends Contract {
       isAtomicClosureAllowed: boolean,
       accessManagerContract: string,
       accessManagerContractData: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     numUsers(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1553,7 +1565,7 @@ export class EasyAuction extends Contract {
       _sellAmounts: BigNumberish[],
       _prevSellOrders: BytesLike[],
       allowListCallData: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "placeSellOrders(uint256,uint96[],uint96[],bytes32[],bytes)"(
@@ -1562,7 +1574,7 @@ export class EasyAuction extends Contract {
       _sellAmounts: BigNumberish[],
       _prevSellOrders: BytesLike[],
       allowListCallData: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     placeSellOrdersOnBehalf(
@@ -1572,7 +1584,7 @@ export class EasyAuction extends Contract {
       _prevSellOrders: BytesLike[],
       allowListCallData: BytesLike,
       orderSubmitter: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "placeSellOrdersOnBehalf(uint256,uint96[],uint96[],bytes32[],bytes,address)"(
@@ -1582,52 +1594,59 @@ export class EasyAuction extends Contract {
       _prevSellOrders: BytesLike[],
       allowListCallData: BytesLike,
       orderSubmitter: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     precalculateSellAmountSum(
       auctionId: BigNumberish,
       iterationSteps: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "precalculateSellAmountSum(uint256,uint256)"(
       auctionId: BigNumberish,
       iterationSteps: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    registerUser(user: string, overrides?: Overrides): Promise<BigNumber>;
+    registerUser(
+      user: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     "registerUser(address)"(
       user: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    renounceOwnership(overrides?: Overrides): Promise<BigNumber>;
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
-    "renounceOwnership()"(overrides?: Overrides): Promise<BigNumber>;
+    "renounceOwnership()"(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     setFeeParameters(
       newFeeNumerator: BigNumberish,
       newfeeReceiverAddress: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "setFeeParameters(uint256,address)"(
       newFeeNumerator: BigNumberish,
       newfeeReceiverAddress: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     settleAuction(
       auctionId: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "settleAuction(uint256)"(
       auctionId: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     settleAuctionAtomically(
@@ -1636,7 +1655,7 @@ export class EasyAuction extends Contract {
       _sellAmount: BigNumberish[],
       _prevSellOrder: BytesLike[],
       allowListCallData: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "settleAuctionAtomically(uint256,uint96[],uint96[],bytes32[],bytes)"(
@@ -1645,17 +1664,17 @@ export class EasyAuction extends Contract {
       _sellAmount: BigNumberish[],
       _prevSellOrder: BytesLike[],
       allowListCallData: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     transferOwnership(
       newOwner: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "transferOwnership(address)"(
       newOwner: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
@@ -1705,25 +1724,25 @@ export class EasyAuction extends Contract {
     cancelSellOrders(
       auctionId: BigNumberish,
       _sellOrders: BytesLike[],
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "cancelSellOrders(uint256,bytes32[])"(
       auctionId: BigNumberish,
       _sellOrders: BytesLike[],
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     claimFromParticipantOrder(
       auctionId: BigNumberish,
       orders: BytesLike[],
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "claimFromParticipantOrder(uint256,bytes32[])"(
       auctionId: BigNumberish,
       orders: BytesLike[],
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     containsOrder(
@@ -1760,12 +1779,12 @@ export class EasyAuction extends Contract {
 
     getUserId(
       user: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "getUserId(address)"(
       user: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     initiateAuction(
@@ -1780,7 +1799,7 @@ export class EasyAuction extends Contract {
       isAtomicClosureAllowed: boolean,
       accessManagerContract: string,
       accessManagerContractData: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "initiateAuction(address,address,uint256,uint256,uint96,uint96,uint256,uint256,bool,address,bytes)"(
@@ -1795,7 +1814,7 @@ export class EasyAuction extends Contract {
       isAtomicClosureAllowed: boolean,
       accessManagerContract: string,
       accessManagerContractData: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     numUsers(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1812,7 +1831,7 @@ export class EasyAuction extends Contract {
       _sellAmounts: BigNumberish[],
       _prevSellOrders: BytesLike[],
       allowListCallData: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "placeSellOrders(uint256,uint96[],uint96[],bytes32[],bytes)"(
@@ -1821,7 +1840,7 @@ export class EasyAuction extends Contract {
       _sellAmounts: BigNumberish[],
       _prevSellOrders: BytesLike[],
       allowListCallData: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     placeSellOrdersOnBehalf(
@@ -1831,7 +1850,7 @@ export class EasyAuction extends Contract {
       _prevSellOrders: BytesLike[],
       allowListCallData: BytesLike,
       orderSubmitter: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "placeSellOrdersOnBehalf(uint256,uint96[],uint96[],bytes32[],bytes,address)"(
@@ -1841,55 +1860,59 @@ export class EasyAuction extends Contract {
       _prevSellOrders: BytesLike[],
       allowListCallData: BytesLike,
       orderSubmitter: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     precalculateSellAmountSum(
       auctionId: BigNumberish,
       iterationSteps: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "precalculateSellAmountSum(uint256,uint256)"(
       auctionId: BigNumberish,
       iterationSteps: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     registerUser(
       user: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "registerUser(address)"(
       user: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    renounceOwnership(overrides?: Overrides): Promise<PopulatedTransaction>;
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
-    "renounceOwnership()"(overrides?: Overrides): Promise<PopulatedTransaction>;
+    "renounceOwnership()"(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     setFeeParameters(
       newFeeNumerator: BigNumberish,
       newfeeReceiverAddress: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "setFeeParameters(uint256,address)"(
       newFeeNumerator: BigNumberish,
       newfeeReceiverAddress: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     settleAuction(
       auctionId: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "settleAuction(uint256)"(
       auctionId: BigNumberish,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     settleAuctionAtomically(
@@ -1898,7 +1921,7 @@ export class EasyAuction extends Contract {
       _sellAmount: BigNumberish[],
       _prevSellOrder: BytesLike[],
       allowListCallData: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "settleAuctionAtomically(uint256,uint96[],uint96[],bytes32[],bytes)"(
@@ -1907,17 +1930,17 @@ export class EasyAuction extends Contract {
       _sellAmount: BigNumberish[],
       _prevSellOrder: BytesLike[],
       allowListCallData: BytesLike,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     transferOwnership(
       newOwner: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "transferOwnership(address)"(
       newOwner: string,
-      overrides?: Overrides
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }
