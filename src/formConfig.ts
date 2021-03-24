@@ -77,10 +77,11 @@ export const FORM_PARAMETERS: Readonly<Record<FormKeys, FormValues>> = {
   allowListManager: {
     label: 'Allow List Contract (Optional)',
     tooltipText:
-      'Contract address for a potential List Manager contract, if allow listing is wanted for the started auction',
+      'Provide the contract address for a potential allow list manager contract. The allow list manager contract can be used to restrict the access to the auction',
   },
   allowListData: {
-    label: 'Signer Public Key (Optional)',
-    tooltipText: 'Provide data that is needed for the List Manager',
+    label: 'Signing Public Key (Optional)',
+    tooltipText:
+      'Provide the public key that is used to allow list participants for the auction participation',
   },
 }
