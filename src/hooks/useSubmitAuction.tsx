@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { BigNumber, BigNumberish, BytesLike, utils } from 'ethers'
 import moment from 'moment'
 import { useCallback } from 'react'
@@ -36,7 +37,6 @@ export const useSubmitAuction = () => {
         const { safeTxHash } = await sdk.txs.send({
           txs,
         })
-        // eslint-disable-next-line no-console
         console.log(safeTxHash)
         const safeTx = await sdk.txs.getBySafeTxHash(safeTxHash)
         console.log('TX service', safeTx)
