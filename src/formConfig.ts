@@ -23,7 +23,7 @@ export const DEFAULT_FORM_PARAMS: Readonly<Record<FormKeys, any>> = {
   minFundingThreshold: '0',
   orderCancellationEndDate: '',
   auctionEndDate: '',
-  minBuyAmountPerOrder: '0.01',
+  minBuyAmountPerOrder: '0.1',
   isAtomicClosureAllowed: false,
   allowListManager: '',
   allowListData: '',
@@ -43,43 +43,44 @@ export const FORM_PARAMETERS: Readonly<Record<FormKeys, FormValues>> = {
     tooltipText: "The ERC20's address of the token that should be bought",
   },
   sellAmount: {
-    label: 'Number of tokens to auction off',
-    tooltipText: 'The amount of auctioning tokens to be sold in atoms',
+    label: 'Sell Amount',
+    tooltipText: 'The amount of auctioning tokens to be sold',
   },
   minBuyAmount: {
-    label: 'Minimum number of tokens to receive in total',
+    label: 'Minimum Buy Amount',
     tooltipText:
-      'The amount of bidding token to be bought at least for selling the amount to sell in atoms',
+      'The amount of bidding token to be bought at least for the whole sell amount. Together with the upper sell amount, one is specifying the price: Sell-Amount / Min-Buy-Amount',
   },
   minFundingThreshold: {
-    label: 'Minimal Funding for executing the settlement',
+    label: 'Minimal Funding Threshold',
     tooltipText:
       'The minimal funding threshold for executing the settlement. If funding is not reached, everyone will get back their investment',
   },
   orderCancellationEndDate: {
-    label: 'End time for order cancellation',
-    tooltipText: 'Choose a time (local) until users are still able to cancel orders',
+    label: 'Order Cancellation End Time',
+    tooltipText: 'Choose a time (your local time) until users should still able to cancel orders',
   },
   auctionEndDate: {
-    label: 'Auction end time',
-    tooltipText: 'Choose a time (local) marking the end of the auction.',
+    label: 'Auction End Time',
+    tooltipText: 'Choose a time (your local time) marking the end of the auction.',
   },
   minBuyAmountPerOrder: {
-    label: 'Minimal amount to buy per order placed in the auction',
+    label: 'Minimal Bid-amount Per Order (Bidding Token)',
     tooltipText:
-      'Describes the minimal amount to buy per order placed in the auction. This can be used in order to protect against too high gas costs for the settlement',
+      'Describes the minimal amount - of bidding tokens - per order in the auction. This can be used in order to protect against too high gas costs for the settlement',
   },
   isAtomicClosureAllowed: {
-    label: 'Is allowed to be closed atomically',
-    tooltipText: 'Describes whether the auction should be allowed to be closed atomically',
+    label: 'Atomic Closure Allowance',
+    tooltipText:
+      'Describes whether the auction should be allowed to be closed atomically - i.e. that the last bid can be submitted together with the price. This allows atomic arbitrage and is only recommended for liquid tokens.',
   },
   allowListManager: {
-    label: 'AllowList Contract (Optional)',
+    label: 'Allow List Contract (Optional)',
     tooltipText:
       'Contract address for a potential List Manager contract, if allow listing is wanted for the started auction',
   },
   allowListData: {
-    label: 'Signer (Optional)',
+    label: 'Signer Public Key (Optional)',
     tooltipText: 'Provide data that is needed for the List Manager',
   },
 }
