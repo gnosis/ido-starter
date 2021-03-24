@@ -2,7 +2,7 @@ import React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import styled from 'styled-components'
 
-import { Button, Divider, Loader, Title } from '@gnosis.pm/safe-react-components'
+import { Divider, Title } from '@gnosis.pm/safe-react-components'
 
 import { AllowListDataInput } from './components/form/AllowListDataInput'
 import { AllowListManagerInput } from './components/form/AllowListManagerInput'
@@ -15,8 +15,8 @@ import { MinBuyAmountPerOrderInput } from './components/form/MinBuyAmountPerOrde
 import { MinFundingThresholdInput } from './components/form/MinFundingThresholdInput'
 import { OrderCancellationEndDatePicker } from './components/form/OrderCancellationEndDatePicker'
 import { SellAmountInput } from './components/form/SellAmountInput'
+import { SubmitForm } from './components/form/SubmitForm'
 import { Auction, DEFAULT_FORM_PARAMS } from './formConfig'
-import { useSubmitAuction } from './hooks/useSubmitAuction'
 
 const Container = styled.form`
   margin-bottom: 2rem;
@@ -35,9 +35,6 @@ const App: React.FC = () => {
     mode: 'all',
     defaultValues: DEFAULT_FORM_PARAMS,
   })
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { formState, getValues, reset } = formMethods
-  const { initiateNewAuction, submitting } = useSubmitAuction(formMethods)
 
   return (
     <FormProvider {...formMethods}>
@@ -55,26 +52,7 @@ const App: React.FC = () => {
         <AtomicClosureAllowedCheckbox />
         <AllowListManagerInput />
         <AllowListDataInput />
-
-        <Button
-          color="primary"
-          disabled={!formState.isValid || formState.isValidating}
-          onClick={async () => {
-            const values = getValues()
-            // eslint-disable-next-line no-console
-            console.log('Form Values', values)
-            try {
-              await initiateNewAuction()
-              //reset()
-            } catch (e) {
-              console.error('Error at initiate auction', e)
-            }
-          }}
-          size="lg"
-        >
-          {submitting && <Loader size="md" />}
-          Build transaction
-        </Button>
+        <SubmitForm />
       </Container>
     </FormProvider>
   )
