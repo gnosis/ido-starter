@@ -18,12 +18,12 @@ export type FormKeys = keyof Auction
 export const DEFAULT_FORM_PARAMS: Readonly<Record<FormKeys, any>> = {
   auctioningToken: '',
   biddingToken: '',
-  sellAmount: '0',
-  minBuyAmount: '0',
-  minFundingThreshold: '0',
+  sellAmount: '',
+  minBuyAmount: '',
+  minFundingThreshold: '',
   orderCancellationEndDate: '',
   auctionEndDate: '',
-  minBuyAmountPerOrder: '0.1',
+  minBuyAmountPerOrder: '',
   isAtomicClosureAllowed: false,
   allowListManager: '',
   allowListData: '',
@@ -65,7 +65,7 @@ export const FORM_PARAMETERS: Readonly<Record<FormKeys, FormValues>> = {
     tooltipText: 'Choose a time (your local time) marking the end of the auction.',
   },
   minBuyAmountPerOrder: {
-    label: 'Minimal Bid-amount Per Order (Bidding Token)',
+    label: 'Minimal Bidding-Amount Per Order',
     tooltipText:
       'Describes the minimal amount - of bidding tokens - per order in the auction. This can be used in order to protect against too high gas costs for the settlement',
   },
