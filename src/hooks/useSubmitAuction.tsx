@@ -34,7 +34,7 @@ export const useSubmitAuction = () => {
         const { safeTxHash } = await sdk.txs.send({
           txs,
         })
-        console.log(safeTxHash)
+        console.log('Safe TX Hash', safeTxHash)
         const safeTx = await sdk.txs.getBySafeTxHash(safeTxHash)
         console.log('TX service', safeTx)
         const txReceipt = await sdk.eth.getTransactionReceipt([safeTxHash])

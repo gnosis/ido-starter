@@ -20,13 +20,14 @@ export const AllowListDataInput = () => {
         rules={{
           required: false,
           validate: {
-            pattern: (value) => ADDRESS_REGEX.test(value) || 'Invalid address',
-            isContract: async (value) => {
-              const allowListDataIsContract = await checkIsContract(sdk, value)
-              if (allowListDataIsContract) {
-                return 'allowListData should be an EOA'
-              }
+            pattern: (value) => {
+              if (value) ADDRESS_REGEX.test(value) || 'Invalid address'
               return true
+            },
+            isContract: async (value) => {
+              if (!value) return true
+              const allowListDataIsContract = await checkIsContract(sdk, value)
+              return allowListDataIsContract ? 'allowListData should be an EOA' : true
             },
           },
         }}

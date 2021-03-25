@@ -4,6 +4,7 @@ import React from 'react'
 import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
 
 import { FORM_PARAMETERS, FormKeys } from '../../formConfig'
+import { useAuctionForm } from '../../hooks/useAuctionForm'
 import { fetchToken } from '../../hooks/useERC20'
 import { ADDRESS_REGEX } from '../../utils'
 import { IconTooltip } from '../common/IconTooltip'
@@ -14,6 +15,7 @@ const formKey: FormKeys = 'biddingToken'
 export const BiddingTokenInput = () => {
   const { label, tooltipText } = FORM_PARAMETERS[formKey]
   const { safe, sdk } = useSafeAppsSDK()
+  const { getValues } = useAuctionForm()
 
   return (
     <InputLineContainer>
@@ -33,11 +35,23 @@ export const BiddingTokenInput = () => {
               }
             },
             validity: async (value: string) => {
-              const { error } = await fetchToken(value, safe, sdk)
-              return !error || 'Invalid ERC20'
+              try {
+                const { error } = await fetchToken(value, safe, sdk)
+                return !error || 'Invalid ERC20'
+              } catch (e) {
+                return 'Invalid ERC20'
+              }
+            },
+            notEqual: (value: string) => {
+              const { auctioningToken } = getValues()
+              if (value.toLowerCase() === auctioningToken.toLowerCase()) {
+                return 'Auctioning token and bidding token must be different'
+              }
+              return true
             },
           },
         }}
+        triggerOnChange="auctioningToken"
       />
       <IconTooltip tooltipText={tooltipText} />
     </InputLineContainer>

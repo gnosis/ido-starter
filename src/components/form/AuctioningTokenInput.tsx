@@ -35,8 +35,12 @@ export const AuctioningTokenInput = () => {
               }
             },
             validity: async (value) => {
-              const { error } = await fetchToken(value, safe, sdk)
-              return !error || 'Invalid ERC20'
+              try {
+                const { error } = await fetchToken(value, safe, sdk)
+                return !error || 'Invalid ERC20'
+              } catch (e) {
+                return 'Invalid ERC20'
+              }
             },
             balance: async (value) => {
               const { balance, decimals, symbol } = await fetchToken(value, safe, sdk)
@@ -53,8 +57,16 @@ export const AuctioningTokenInput = () => {
               }
               return true
             },
+            notEqual: (value: string) => {
+              const { biddingToken } = getValues()
+              if (value.toLowerCase() === biddingToken.toLowerCase()) {
+                return 'Bidding token and auctioning token must be different'
+              }
+              return true
+            },
           },
         }}
+        triggerOnChange="biddingToken"
       />
       <IconTooltip tooltipText={tooltipText} />
     </InputLineContainer>

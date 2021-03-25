@@ -27,6 +27,7 @@ export const AuctionEndDatePicker = () => {
               },
             },
           }}
+          triggerOnChange="orderCancellationEndDate"
         />
         <IconTooltip tooltipText={FORM_PARAMETERS[formKey].tooltipText} />
       </InputLineContainer>

@@ -21,13 +21,16 @@ export const AllowListManagerInput = () => {
         rules={{
           required: false,
           validate: {
-            pattern: (value) => ADDRESS_REGEX.test(value) || 'Invalid address',
-            isContract: async (value) => {
-              const allowListManagerIsContract = await checkIsContract(sdk, value)
-              if (!allowListManagerIsContract) {
-                return `allowListManager should be a contract deployed in ${safe.network}`
-              }
+            pattern: (value) => {
+              if (value) ADDRESS_REGEX.test(value) || 'Invalid address'
               return true
+            },
+            isContract: async (value) => {
+              if (!value) return true
+              const allowListManagerIsContract = await checkIsContract(sdk, value)
+              return !allowListManagerIsContract
+                ? `allowListManager should be a contract deployed in ${safe.network}`
+                : true
             },
           },
         }}
