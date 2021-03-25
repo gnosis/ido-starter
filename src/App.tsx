@@ -1,5 +1,5 @@
 import React from 'react'
-import { FormProvider } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 
 import { Divider, Title } from '@gnosis.pm/safe-react-components'
 
@@ -16,10 +16,13 @@ import { MinFundingThresholdInput } from './components/form/MinFundingThresholdI
 import { OrderCancellationEndDatePicker } from './components/form/OrderCancellationEndDatePicker'
 import { SellAmountInput } from './components/form/SellAmountInput'
 import { SubmitForm } from './components/form/SubmitForm'
-import { useAuctionForm } from './hooks/useAuctionForm'
+import { Auction, DEFAULT_FORM_PARAMS } from './formConfig'
 
 const App: React.FC = () => {
-  const formMethods = useAuctionForm()
+  const formMethods = useForm<Required<Auction>>({
+    mode: 'onChange',
+    defaultValues: DEFAULT_FORM_PARAMS,
+  })
 
   return (
     <FormProvider {...formMethods}>

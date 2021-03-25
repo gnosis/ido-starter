@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { Controller, RegisterOptions } from 'react-hook-form'
 
 import { Checkbox, TextField } from '@gnosis.pm/safe-react-components'
@@ -10,28 +10,26 @@ interface InputProps {
   name: FormKeys
   label: string
   rules?: RegisterOptions
+  triggerOnChange?: FormKeys
 }
 
-export const Input = ({ rules = {}, label, name }: InputProps) => {
-  const { control, errors } = useAuctionForm()
-
-  const inputError = errors[name]
-  const error = useMemo(() => {
-    if (inputError && inputError.type) {
-      if (inputError.type === 'required') return 'Field required'
-      if (inputError.type === 'pattern') return 'Invalid value'
-
-      return inputError.message
-    }
-    return ''
-  }, [inputError])
+export const Input = ({ rules = {}, label, name, triggerOnChange }: InputProps) => {
+  const { control, errors, trigger } = useAuctionForm()
 
   return (
     <Controller
       control={control}
       name={name}
       render={({ onChange, value }) => (
-        <TextField label={label} meta={{ error }} onChange={onChange} value={value || ''} />
+        <TextField
+          label={label}
+          meta={{ error: errors[name]?.message || '' }}
+          onChange={(e) => {
+            onChange(e)
+            if (triggerOnChange) trigger(triggerOnChange)
+          }}
+          value={value}
+        />
       )}
       rules={rules}
     />

@@ -1,12 +1,5 @@
-import { useForm } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 
-import { Auction, DEFAULT_FORM_PARAMS } from '../formConfig'
+import { Auction } from '../formConfig'
 
-export const useAuctionForm = () => {
-  const formMethods = useForm<Required<Auction>>({
-    mode: 'all',
-    defaultValues: DEFAULT_FORM_PARAMS,
-  })
-
-  return formMethods
-}
+export const useAuctionForm = () => useFormContext<Auction>()

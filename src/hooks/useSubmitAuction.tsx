@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { BigNumber, BigNumberish, BytesLike, utils } from 'ethers'
+import { BigNumberish, BytesLike, utils } from 'ethers'
 import moment from 'moment'
 import { useCallback } from 'react'
 
@@ -73,26 +73,17 @@ export const useSubmitAuction = () => {
       sellAmount,
     } = values
 
-    const {
-      balance: auctioningBalance,
-      decimals: auctioningTokenDecimals,
-      error: auctioningTokenError,
-      token: auctioningToken,
-    } = await fetchToken(auctioningTokenAddress, safe, sdk)
+    const { decimals: auctioningTokenDecimals, token: auctioningToken } = await fetchToken(
+      auctioningTokenAddress,
+      safe,
+      sdk
+    )
 
-    if (auctioningTokenError) {
-      setError('auctioningToken', { type: 'notERC20', message: 'Invalid ERC20' })
-    }
-
-    const {
-      decimals: biddingTokenDecimals,
-      error: biddingTokenError,
-      token: biddingToken,
-    } = await fetchToken(biddingTokenAddress, safe, sdk)
-
-    if (biddingTokenError) {
-      setError('biddingToken', { type: 'notERC20', message: 'Invalid ERC20' })
-    }
+    const { decimals: biddingTokenDecimals, token: biddingToken } = await fetchToken(
+      biddingTokenAddress,
+      safe,
+      sdk
+    )
 
     if (!auctioningToken || !biddingToken) {
       console.error('InitiateNewAuction called without tokens')
@@ -111,14 +102,6 @@ export const useSubmitAuction = () => {
       biddingTokenDecimals
     )
     const sellAmountInAtoms = utils.parseUnits(sellAmount, auctioningTokenDecimals)
-    if (sellAmountInAtoms && sellAmountInAtoms.gt(BigNumber.from('0'))) {
-      if (auctioningBalance.lt(sellAmountInAtoms)) {
-        setError('sellAmount', {
-          type: 'balance',
-          message: 'Not enough auctioning token balance for this amount',
-        })
-      }
-    }
 
     const auctionEndDateMoment = moment(auctionEndDate).seconds(0).milliseconds(0)
     const orderCancellationEndDateMoment = moment(orderCancellationEndDate)
