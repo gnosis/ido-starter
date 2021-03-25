@@ -6,7 +6,7 @@ import { useAuctionForm } from '../../hooks/useAuctionForm'
 import { useSubmitAuction } from '../../hooks/useSubmitAuction'
 
 export const SubmitForm = () => {
-  const { formState, getValues, reset } = useAuctionForm()
+  const { formState, getValues, reset, trigger } = useAuctionForm()
   const { initiateNewAuction } = useSubmitAuction()
   const [submitting, setSubmitting] = useState(false)
 
@@ -15,6 +15,8 @@ export const SubmitForm = () => {
       color="primary"
       disabled={(!formState.isValid || formState.isValidating) && !submitting}
       onClick={async () => {
+        const formIsValid = await trigger()
+        if (!formIsValid) return
         setSubmitting(true)
         const values = getValues()
         // eslint-disable-next-line no-console

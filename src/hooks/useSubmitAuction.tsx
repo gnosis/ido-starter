@@ -6,11 +6,9 @@ import { useCallback } from 'react'
 import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
 import { Transaction } from '@gnosis.pm/safe-apps-sdk'
 
-import { ADDRESS_REGEX } from '../utils'
 import { useAuctionForm } from './useAuctionForm'
 import { fetchToken } from './useERC20'
 import { useEasyAuctionContract } from './useEasyAuctionContract'
-import { checkIsContract } from './useIsContract'
 
 type ValuesToSend = [
   string,
@@ -27,7 +25,7 @@ type ValuesToSend = [
 ]
 export const useSubmitAuction = () => {
   const { safe, sdk } = useSafeAppsSDK()
-  const { getValues, setError } = useAuctionForm()
+  const { getValues } = useAuctionForm()
   const easyAuction = useEasyAuctionContract()
 
   const submitTx = useCallback(
@@ -51,14 +49,9 @@ export const useSubmitAuction = () => {
   )
 
   const initiateNewAuction = useCallback(async () => {
-    let formHasErrors = false
     let useDefaultAllowListManager = false
     let useDefaultAllowListData = false
 
-    const values = getValues()
-    if (!values) {
-      return
-    }
     const {
       allowListData,
       allowListManager,
@@ -71,7 +64,7 @@ export const useSubmitAuction = () => {
       minFundingThreshold,
       orderCancellationEndDate,
       sellAmount,
-    } = values
+    } = getValues()
 
     const { decimals: auctioningTokenDecimals, token: auctioningToken } = await fetchToken(
       auctioningTokenAddress,
@@ -107,64 +100,16 @@ export const useSubmitAuction = () => {
     const orderCancellationEndDateMoment = moment(orderCancellationEndDate)
       .seconds(0)
       .milliseconds(0)
-    const now = moment().seconds(0).milliseconds(0)
 
-    if (auctionEndDateMoment.isBefore(now)) {
-      setError('auctionEndDate', {
-        type: 'manual',
-        message: 'Auction End Date should be in the future',
-      })
-
-      formHasErrors = true
-    }
-
-    if (orderCancellationEndDateMoment.isBefore(now)) {
-      setError('orderCancellationEndDate', {
-        type: 'manual',
-        message: 'Order cancellation End Date should be in the future',
-      })
-
-      formHasErrors = true
-    }
-
-    if (orderCancellationEndDateMoment.isAfter(auctionEndDateMoment)) {
-      setError('orderCancellationEndDate', {
-        type: 'manual',
-        message: 'Order cancellation End Date should be before auction End Date',
-      })
-
-      formHasErrors = true
-    }
-
-    if (allowListManager && ADDRESS_REGEX.test(allowListManager)) {
-      const allowListManagerIsContract = await checkIsContract(sdk, allowListManager)
-      if (!allowListManagerIsContract) {
-        setError('allowListManager', {
-          type: 'manual',
-          message: `allowListManager should be a contract deployed in ${safe.network}`,
-        })
-        formHasErrors = true
-      }
-    } else {
+    if (!allowListManager) {
       // eslint-disable-next-line no-console
       console.log('AllowListManager not set or not an address')
       useDefaultAllowListManager = true
     }
 
-    if (allowListData && ADDRESS_REGEX.test(allowListData)) {
-      const allowListDataIsContract = await checkIsContract(sdk, allowListData)
-      if (allowListDataIsContract) {
-        setError('allowListData', { type: 'manual', message: 'allowListData should be an EOA' })
-        formHasErrors = true
-      }
-    } else {
-      // eslint-disable-next-line no-console
+    if (!allowListData) {
       console.log('AllowListData/Signer not set or not an address')
       useDefaultAllowListData = true
-    }
-
-    if (formHasErrors) {
-      throw new Error('Form completed with errors')
     }
 
     const txs: Transaction[] = []
@@ -205,7 +150,7 @@ export const useSubmitAuction = () => {
     })
 
     return submitTx(txs)
-  }, [easyAuction.address, easyAuction.interface, getValues, safe, sdk, setError, submitTx])
+  }, [easyAuction, getValues, safe, sdk, submitTx])
 
   return { submitTx, initiateNewAuction }
 }

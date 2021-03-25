@@ -20,7 +20,7 @@ import { Auction, DEFAULT_FORM_PARAMS } from './formConfig'
 
 const App: React.FC = () => {
   const formMethods = useForm<Required<Auction>>({
-    mode: 'onChange',
+    mode: 'all',
     defaultValues: DEFAULT_FORM_PARAMS,
   })
 

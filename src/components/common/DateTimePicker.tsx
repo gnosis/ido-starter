@@ -1,5 +1,6 @@
+import moment from 'moment'
 import React, { useMemo } from 'react'
-import { Controller } from 'react-hook-form'
+import { Controller, RegisterOptions } from 'react-hook-form'
 
 import { TextField } from '@gnosis.pm/safe-react-components'
 import DatePicker from 'react-datepicker'
@@ -11,10 +12,17 @@ import { useAuctionForm } from '../../hooks/useAuctionForm'
 interface Props {
   name: FormKeys
   label: string
+  rules?: RegisterOptions
+  triggerOnChange?: FormKeys
 }
 
-export const DateTimePicker = ({ label, name }: Props) => {
-  const { control, errors } = useAuctionForm()
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const removeSecondsAndMiliseconds = (date: any) => {
+  return moment(date).seconds(0).milliseconds(0).toDate()
+}
+
+export const DateTimePicker = ({ label, name, rules, triggerOnChange }: Props) => {
+  const { control, errors, trigger } = useAuctionForm()
 
   const now = useMemo(() => new Date(), [])
   const error = errors[name]
@@ -35,7 +43,10 @@ export const DateTimePicker = ({ label, name }: Props) => {
           }
           dateFormat="MMMM d, yyyy h:mm aa"
           minDate={now}
-          onChange={onChange}
+          onChange={(e) => {
+            onChange(removeSecondsAndMiliseconds(e))
+            if (triggerOnChange) trigger(triggerOnChange)
+          }}
           popperClassName="calendar"
           selected={value}
           showTimeSelect
@@ -45,7 +56,7 @@ export const DateTimePicker = ({ label, name }: Props) => {
           wrapperClassName="date-picker-wrapper"
         />
       )}
-      rules={{ required: true }}
+      rules={rules}
     />
   )
 }
