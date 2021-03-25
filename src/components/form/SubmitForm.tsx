@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
-import { useFormContext } from 'react-hook-form'
 
 import { Button, Loader } from '@gnosis.pm/safe-react-components'
 
+import { useAuctionForm } from '../../hooks/useAuctionForm'
 import { useSubmitAuction } from '../../hooks/useSubmitAuction'
 
 export const SubmitForm = () => {
-  const { formState, getValues, reset } = useFormContext()
+  const { formState, getValues, reset } = useAuctionForm()
   const { initiateNewAuction } = useSubmitAuction()
   const [submitting, setSubmitting] = useState(false)
 

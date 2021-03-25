@@ -1,16 +1,19 @@
 import React, { useMemo } from 'react'
-import { Controller, RegisterOptions, useFormContext } from 'react-hook-form'
+import { Controller, RegisterOptions } from 'react-hook-form'
 
 import { Checkbox, TextField } from '@gnosis.pm/safe-react-components'
 
+import { FormKeys } from '../../formConfig'
+import { useAuctionForm } from '../../hooks/useAuctionForm'
+
 interface InputProps {
-  name: string
+  name: FormKeys
   label: string
   rules?: RegisterOptions
 }
 
 export const Input = ({ rules = {}, label, name }: InputProps) => {
-  const { control, errors } = useFormContext()
+  const { control, errors } = useAuctionForm()
 
   const inputError = errors[name]
   const error = useMemo(() => {
@@ -36,7 +39,7 @@ export const Input = ({ rules = {}, label, name }: InputProps) => {
 }
 
 export const WrappedCheckbox = ({ label, name }: InputProps) => {
-  const { control } = useFormContext()
+  const { control } = useAuctionForm()
 
   return (
     <Controller

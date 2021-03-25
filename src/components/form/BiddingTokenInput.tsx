@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react'
-import { Controller, useFormContext } from 'react-hook-form'
+import { Controller } from 'react-hook-form'
 
 import { TextField } from '@gnosis.pm/safe-react-components'
 
 import { FORM_PARAMETERS, FormKeys } from '../../formConfig'
+import { useAuctionForm } from '../../hooks/useAuctionForm'
 import { ADDRESS_REGEX } from '../../utils'
 import { IconTooltip } from '../common/IconTooltip'
 import { InputLineContainer } from '../common/InputLineContainer'
@@ -12,7 +13,7 @@ const formKey: FormKeys = 'biddingToken'
 export const BiddingTokenInput = () => {
   const { label, tooltipText } = FORM_PARAMETERS[formKey]
 
-  const { control, errors } = useFormContext()
+  const { control, errors } = useAuctionForm()
 
   const inputError = errors[formKey]
 

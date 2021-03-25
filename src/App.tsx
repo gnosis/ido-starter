@@ -1,9 +1,9 @@
 import React from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
-import styled from 'styled-components'
+import { FormProvider } from 'react-hook-form'
 
 import { Divider, Title } from '@gnosis.pm/safe-react-components'
 
+import { FormContainer } from './components/common/FormContainer'
 import { AllowListDataInput } from './components/form/AllowListDataInput'
 import { AllowListManagerInput } from './components/form/AllowListManagerInput'
 import { AtomicClosureAllowedCheckbox } from './components/form/AtomicClosureAllowedCheckbox'
@@ -16,29 +16,14 @@ import { MinFundingThresholdInput } from './components/form/MinFundingThresholdI
 import { OrderCancellationEndDatePicker } from './components/form/OrderCancellationEndDatePicker'
 import { SellAmountInput } from './components/form/SellAmountInput'
 import { SubmitForm } from './components/form/SubmitForm'
-import { Auction, DEFAULT_FORM_PARAMS } from './formConfig'
-
-const Container = styled.form`
-  margin-bottom: 2rem;
-  width: 100%;
-  max-width: 760px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  margin: auto;
-`
+import { useAuctionForm } from './hooks/useAuctionForm'
 
 const App: React.FC = () => {
-  const formMethods = useForm<Required<Auction>>({
-    mode: 'all',
-    defaultValues: DEFAULT_FORM_PARAMS,
-  })
+  const formMethods = useAuctionForm()
 
   return (
     <FormProvider {...formMethods}>
-      <Container>
+      <FormContainer>
         <Title size="md">Start a new Gnosis Auction</Title>
         <Divider />
         <AuctioningTokenInput />
@@ -53,7 +38,7 @@ const App: React.FC = () => {
         <AllowListManagerInput />
         <AllowListDataInput />
         <SubmitForm />
-      </Container>
+      </FormContainer>
     </FormProvider>
   )
 }

@@ -2,13 +2,12 @@
 import { BigNumber, BigNumberish, BytesLike, utils } from 'ethers'
 import moment from 'moment'
 import { useCallback } from 'react'
-import { useFormContext } from 'react-hook-form'
 
 import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
 import { Transaction } from '@gnosis.pm/safe-apps-sdk'
 
-import { Auction } from '../formConfig'
 import { ADDRESS_REGEX } from '../utils'
+import { useAuctionForm } from './useAuctionForm'
 import { fetchToken } from './useERC20'
 import { useEasyAuctionContract } from './useEasyAuctionContract'
 import { checkIsContract } from './useIsContract'
@@ -28,7 +27,7 @@ type ValuesToSend = [
 ]
 export const useSubmitAuction = () => {
   const { safe, sdk } = useSafeAppsSDK()
-  const { getValues, setError } = useFormContext<Auction>()
+  const { getValues, setError } = useAuctionForm()
   const easyAuction = useEasyAuctionContract()
 
   const submitTx = useCallback(

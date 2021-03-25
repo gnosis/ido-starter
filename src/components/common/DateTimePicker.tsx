@@ -1,16 +1,20 @@
 import React, { useMemo } from 'react'
-import { Controller, useFormContext } from 'react-hook-form'
+import { Controller } from 'react-hook-form'
 
 import { TextField } from '@gnosis.pm/safe-react-components'
 import DatePicker from 'react-datepicker'
+
 import 'react-datepicker/dist/react-datepicker.css'
+import { FormKeys } from '../../formConfig'
+import { useAuctionForm } from '../../hooks/useAuctionForm'
+
 interface Props {
-  name: string
+  name: FormKeys
   label: string
 }
 
 export const DateTimePicker = ({ label, name }: Props) => {
-  const { control, errors } = useFormContext()
+  const { control, errors } = useAuctionForm()
 
   const now = useMemo(() => new Date(), [])
   const error = errors[name]
