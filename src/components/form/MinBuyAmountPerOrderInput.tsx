@@ -14,7 +14,10 @@ export const MinBuyAmountPerOrderInput = () => {
       <Input
         label={FORM_PARAMETERS[formKey].label}
         name={formKey}
-        rules={{ required: true, pattern: POSITIVE_NUMBER }}
+        rules={{
+          required: { value: true, message: 'Field is required' },
+          pattern: { value: POSITIVE_NUMBER, message: 'Invalid number' },
+        }}
       />
       <IconTooltip tooltipText={FORM_PARAMETERS[formKey].tooltipText} />
     </InputLineContainer>
