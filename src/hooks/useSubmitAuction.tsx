@@ -1,17 +1,14 @@
+/* eslint-disable no-console */
 import { BigNumberish, BytesLike, utils } from 'ethers'
 import moment from 'moment'
-import { useCallback, useState } from 'react'
-import { UseFormMethods } from 'react-hook-form'
+import { useCallback } from 'react'
 
 import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
 import { Transaction } from '@gnosis.pm/safe-apps-sdk'
 
-import { Auction } from '../formConfig'
-import { ADDRESS_REGEX } from '../utils'
-import { useAllowance } from './useAllowance'
-import { useERC20 } from './useERC20'
+import { useAuctionForm } from './useAuctionForm'
+import { fetchToken } from './useERC20'
 import { useEasyAuctionContract } from './useEasyAuctionContract'
-import { checkIsContract } from './useIsContract'
 
 type ValuesToSend = [
   string,
@@ -26,133 +23,93 @@ type ValuesToSend = [
   string,
   BytesLike
 ]
-export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>) => {
-  const [submitting, setSubmitting] = useState(false)
-
+export const useSubmitAuction = () => {
   const { safe, sdk } = useSafeAppsSDK()
-  const { setError, watch } = formMethods
+  const { getValues } = useAuctionForm()
   const easyAuction = useEasyAuctionContract()
-
-  const auctioningTokenAddress = watch('auctioningToken')
-  const { decimals: auctioningTokenDecimals, token: auctioningToken } = useERC20(
-    auctioningTokenAddress
-  )
-
-  const biddingTokenAddress = watch('biddingToken')
-  const { decimals: biddingTokenDecimals, token: biddingToken } = useERC20(biddingTokenAddress)
-
-  const allowance = useAllowance(auctioningTokenAddress)
-
-  const minBuyAmount = watch('minBuyAmount')
-  const minBuyAmountPerOrder = watch('minBuyAmountPerOrder')
-  const minFundingThreshold = watch('minFundingThreshold')
-  const allowListManager = watch('allowListManager')
-  const allowListData = watch('allowListData')
-
-  const sellAmount = watch('sellAmount')
-  const isAtomicClosureAllowed = watch('isAtomicClosureAllowed')
-  const auctionEndDate = watch('auctionEndDate')
-  const orderCancellationEndDate = watch('orderCancellationEndDate')
 
   const submitTx = useCallback(
     async (txs: Transaction[]) => {
-      setSubmitting(true)
       try {
         const { safeTxHash } = await sdk.txs.send({
           txs,
         })
-        // eslint-disable-next-line no-console
-        console.log(safeTxHash)
+        console.log('Safe TX Hash', safeTxHash)
         const safeTx = await sdk.txs.getBySafeTxHash(safeTxHash)
+        console.log('TX service', safeTx)
+        const txReceipt = await sdk.eth.getTransactionReceipt([safeTxHash])
+        console.log('txReceipt', txReceipt)
+
         return safeTx
       } catch (e) {
         console.error('Error sending auction', e)
       }
-      setSubmitting(false)
     },
     [sdk]
   )
 
   const initiateNewAuction = useCallback(async () => {
-    let formHasErrors = false
     let useDefaultAllowListManager = false
     let useDefaultAllowListData = false
 
-    if (!auctioningToken || !biddingToken || !allowance) {
+    const {
+      allowListData,
+      allowListManager,
+      auctionEndDate,
+      auctioningToken: auctioningTokenAddress,
+      biddingToken: biddingTokenAddress,
+      isAtomicClosureAllowed,
+      minBuyAmount,
+      minBuyAmountPerOrder,
+      minFundingThreshold,
+      orderCancellationEndDate,
+      sellAmount,
+    } = getValues()
+
+    const { decimals: auctioningTokenDecimals, token: auctioningToken } = await fetchToken(
+      auctioningTokenAddress,
+      safe,
+      sdk
+    )
+
+    const { decimals: biddingTokenDecimals, token: biddingToken } = await fetchToken(
+      biddingTokenAddress,
+      safe,
+      sdk
+    )
+
+    if (!auctioningToken || !biddingToken) {
       console.error('InitiateNewAuction called without tokens')
       return
     }
 
+    const allowance = await auctioningToken.allowance(safe.safeAddress, easyAuction.address)
+
     const minBuyAmountInAtoms = utils.parseUnits(minBuyAmount, biddingTokenDecimals)
     const minBuytAmountPerOrderInAtoms = utils.parseUnits(
-      minBuyAmountPerOrder,
+      minBuyAmountPerOrder as string,
       biddingTokenDecimals
     )
-    const minFundingThresholdInAtoms = utils.parseUnits(minFundingThreshold, biddingTokenDecimals)
+    const minFundingThresholdInAtoms = utils.parseUnits(
+      minFundingThreshold as string,
+      biddingTokenDecimals
+    )
     const sellAmountInAtoms = utils.parseUnits(sellAmount, auctioningTokenDecimals)
 
     const auctionEndDateMoment = moment(auctionEndDate).seconds(0).milliseconds(0)
     const orderCancellationEndDateMoment = moment(orderCancellationEndDate)
       .seconds(0)
       .milliseconds(0)
-    const now = moment().seconds(0).milliseconds(0)
 
-    if (auctionEndDateMoment.isBefore(now)) {
-      setError('auctionEndDate', {
-        type: 'manual',
-        message: 'Auction End Date should be in the future',
-      })
-
-      formHasErrors = true
-    }
-
-    if (orderCancellationEndDateMoment.isBefore(now)) {
-      setError('orderCancellationEndDate', {
-        type: 'manual',
-        message: 'Order cancellation End Date should be in the future',
-      })
-
-      formHasErrors = true
-    }
-
-    if (orderCancellationEndDateMoment.isAfter(auctionEndDateMoment)) {
-      setError('orderCancellationEndDate', {
-        type: 'manual',
-        message: 'Order cancellation End Date should be before auction End Date',
-      })
-
-      formHasErrors = true
-    }
-
-    if (allowListManager && ADDRESS_REGEX.test(allowListManager)) {
-      const allowListManagerIsContract = await checkIsContract(sdk, allowListManager)
-      if (!allowListManagerIsContract) {
-        setError('allowListManager', {
-          type: 'manual',
-          message: `allowListManager should be a contract deployed in ${safe.network}`,
-        })
-        formHasErrors = true
-      }
-    } else {
+    if (!allowListManager) {
       // eslint-disable-next-line no-console
       console.log('AllowListManager not set or not an address')
       useDefaultAllowListManager = true
     }
 
-    if (allowListData && ADDRESS_REGEX.test(allowListData)) {
-      const allowListDataIsContract = await checkIsContract(sdk, allowListData)
-      if (allowListDataIsContract) {
-        setError('allowListData', { type: 'manual', message: 'allowListData should be an EOA' })
-        formHasErrors = true
-      }
-    } else {
-      // eslint-disable-next-line no-console
+    if (!allowListData) {
       console.log('AllowListData/Signer not set or not an address')
       useDefaultAllowListData = true
-    }
-
-    if (formHasErrors) {
-      throw new Error('Form completed with errors')
     }
 
     const txs: Transaction[] = []
@@ -178,7 +135,9 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
       minBuytAmountPerOrderInAtoms,
       minFundingThresholdInAtoms,
       !!isAtomicClosureAllowed,
-      useDefaultAllowListManager ? '0x0000000000000000000000000000000000000000' : allowListManager,
+      useDefaultAllowListManager
+        ? '0x0000000000000000000000000000000000000000'
+        : (allowListManager as string),
       useDefaultAllowListData ? '0x' : utils.defaultAbiCoder.encode(['address'], [allowListData]),
     ]
 
@@ -191,28 +150,7 @@ export const useSubmitAuction = (formMethods: UseFormMethods<Required<Auction>>)
     })
 
     return submitTx(txs)
-  }, [
-    allowListData,
-    allowListManager,
-    allowance,
-    auctionEndDate,
-    auctioningToken,
-    auctioningTokenDecimals,
-    biddingToken,
-    biddingTokenDecimals,
-    easyAuction.address,
-    easyAuction.interface,
-    isAtomicClosureAllowed,
-    minBuyAmount,
-    minBuyAmountPerOrder,
-    minFundingThreshold,
-    orderCancellationEndDate,
-    safe.network,
-    sdk,
-    sellAmount,
-    setError,
-    submitTx,
-  ])
+  }, [easyAuction, getValues, safe, sdk, submitTx])
 
-  return { submitTx, submitting, initiateNewAuction }
+  return { submitTx, initiateNewAuction }
 }

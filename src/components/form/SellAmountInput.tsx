@@ -14,7 +14,14 @@ export const SellAmountInput = () => {
       <Input
         label={FORM_PARAMETERS[formKey].label}
         name={formKey}
-        rules={{ required: true, pattern: POSITIVE_NUMBER }}
+        rules={{
+          required: true,
+          pattern: POSITIVE_NUMBER,
+          validate: {
+            min: (value) => value > 0 || 'Amount to sell must be positive',
+          },
+        }}
+        triggerOnChange="auctioningToken"
       />
       <IconTooltip tooltipText={FORM_PARAMETERS[formKey].tooltipText} />
     </InputLineContainer>
