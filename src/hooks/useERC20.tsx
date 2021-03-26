@@ -1,11 +1,11 @@
 import { BigNumber } from 'ethers'
 import { useCallback, useEffect, useState } from 'react'
 
-import { SafeAppsSdkSigner } from '@gnosis.pm/safe-apps-ethers-provider'
 import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
 import { SafeInfo } from '@gnosis.pm/safe-apps-sdk'
 import SafeAppsSDK from '@gnosis.pm/safe-apps-sdk/dist/src/sdk'
 
+import { getProvider } from '../networkConfig'
 import { ADDRESS_REGEX, Maybe } from '../utils'
 import { ERC20, ERC20__factory as ERC20Factory } from './../types'
 import { checkIsContract } from './useIsContract'
@@ -19,7 +19,7 @@ const errorValues = {
 }
 
 export const fetchToken = async (address: string, safe: SafeInfo, sdk: SafeAppsSDK) => {
-  const provider = new SafeAppsSdkSigner(safe, sdk)
+  const provider = getProvider(safe.network)
   const token = ERC20Factory.connect(address, provider)
 
   const balance = await token.balanceOf(safe.safeAddress)
