@@ -17,9 +17,6 @@ export const MinFundingThresholdInput = () => {
         rules={{
           required: true,
           pattern: POSITIVE_NUMBER,
-          validate: {
-            min: (value) => value > 0 || 'Minimal funding should be positive',
-          },
         }}
       />
       <IconTooltip tooltipText={FORM_PARAMETERS[formKey].tooltipText} />
