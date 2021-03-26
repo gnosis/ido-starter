@@ -18,7 +18,7 @@ interface Props {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const removeSecondsAndMiliseconds = (date: any) => {
-  return moment(date).seconds(0).milliseconds(0).toDate()
+  return date ? moment(date).seconds(0).milliseconds(0).toDate() : date
 }
 
 export const DateTimePicker = ({ label, name, rules, triggerOnChange }: Props) => {
