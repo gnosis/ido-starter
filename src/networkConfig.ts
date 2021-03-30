@@ -21,15 +21,14 @@ export const EASY_AUCTION_ADDRESSES: EasyAuctionAdresses = {
   VOLTA: '',
 }
 
-export const INFURA_ID = process.env.REACT_APP_INFURA_ID
+const INFURA_ID = process.env.REACT_APP_INFURA_ID
 if (!INFURA_ID) {
   throw new Error('REACT_APP_INFURA_ID not provided')
 }
 
+const XDAI_RPC = process.env.REACT_APP_XDAI_RPC || 'https://rpc.xdaichain.com'
+
 export const getProvider = (network: Networks) => {
-  const rpc =
-    network === 'XDAI'
-      ? 'https://rpc.xdaichain.com'
-      : `https://${network}.infura.io/v3/${INFURA_ID}`
+  const rpc = network === 'XDAI' ? XDAI_RPC : `https://${network}.infura.io/v3/${INFURA_ID}`
   return new ethers.providers.JsonRpcProvider(rpc)
 }
