@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 
 import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
 
@@ -13,16 +13,10 @@ import { InputLineContainer } from '../common/InputLineContainer'
 export const AllowListDataInput = () => {
   const isAllowedKey: FormKeys = 'isWhiteListingProcessUsed'
   const formKey: FormKeys = 'allowListData'
-  const { unregister, watch } = useAuctionForm()
+  const { watch } = useAuctionForm()
   const { sdk } = useSafeAppsSDK()
 
   const isWhiteListingProcessUsed = watch(isAllowedKey)
-
-  useEffect(() => {
-    if (!isWhiteListingProcessUsed) {
-      unregister(formKey)
-    }
-  }, [isWhiteListingProcessUsed, unregister])
 
   return (
     <>
@@ -35,11 +29,11 @@ export const AllowListDataInput = () => {
             label={FORM_PARAMETERS[formKey].label}
             name={formKey}
             rules={{
-              required: isWhiteListingProcessUsed,
+              required: { value: true, message: 'Field is required' },
               validate: {
                 pattern: (value) => {
-                  if (value) ADDRESS_REGEX.test(value) || 'Invalid address'
-                  return true
+                  if (!value) return true
+                  return ADDRESS_REGEX.test(value) || 'Invalid address'
                 },
                 isContract: async (value) => {
                   if (!value) return true
