@@ -6,6 +6,7 @@ import { useCallback } from 'react'
 import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
 import { Transaction } from '@gnosis.pm/safe-apps-sdk'
 
+import { ALLOW_LISTING_CONTRACT } from '../formConfig'
 import { useAuctionForm } from './useAuctionForm'
 import { fetchToken } from './useERC20'
 import { useEasyAuctionContract } from './useEasyAuctionContract'
@@ -49,16 +50,13 @@ export const useSubmitAuction = () => {
   )
 
   const initiateNewAuction = useCallback(async () => {
-    let useDefaultAllowListManager = false
-    let useDefaultAllowListData = false
-
     const {
       allowListData,
-      allowListManager,
       auctionEndDate,
       auctioningToken: auctioningTokenAddress,
       biddingToken: biddingTokenAddress,
       isAtomicClosureAllowed,
+      isWhiteListingProcessUsed,
       minBuyAmount,
       minBuyAmountPerOrder,
       minFundingThreshold,
@@ -101,17 +99,6 @@ export const useSubmitAuction = () => {
       .seconds(0)
       .milliseconds(0)
 
-    if (!allowListManager) {
-      // eslint-disable-next-line no-console
-      console.log('AllowListManager not set or not an address')
-      useDefaultAllowListManager = true
-    }
-
-    if (!allowListData) {
-      console.log('AllowListData/Signer not set or not an address')
-      useDefaultAllowListData = true
-    }
-
     const txs: Transaction[] = []
 
     if (sellAmountInAtoms.gt(allowance)) {
@@ -135,10 +122,10 @@ export const useSubmitAuction = () => {
       minBuytAmountPerOrderInAtoms,
       minFundingThresholdInAtoms,
       !!isAtomicClosureAllowed,
-      useDefaultAllowListManager
-        ? '0x0000000000000000000000000000000000000000'
-        : (allowListManager as string),
-      useDefaultAllowListData ? '0x' : utils.defaultAbiCoder.encode(['address'], [allowListData]),
+      isWhiteListingProcessUsed
+        ? ALLOW_LISTING_CONTRACT
+        : '0x0000000000000000000000000000000000000000',
+      isWhiteListingProcessUsed ? utils.defaultAbiCoder.encode(['address'], [allowListData]) : '0x',
     ]
 
     // eslint-disable-next-line no-console
