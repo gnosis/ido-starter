@@ -1,7 +1,7 @@
 {
   "short_name": "Gnosis Auction",
-  "name": "Gnosis Auction",
-  "description": "Describe your Safe App here",
+  "name": "Gnosis Auction Starter",
+  "description": "Safe app to start new auctions on Gnosis Auction",
   "iconPath": "logo.svg",
   "icons": [
     {
