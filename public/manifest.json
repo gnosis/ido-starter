@@ -1,7 +1,7 @@
 {
   "short_name": "Gnosis Auction",
   "name": "Gnosis Auction",
-  "description": "Describe your Safe App here",
+  "description": "Platform for conducting fair, transparent, and decentralized token price discovery.",
   "iconPath": "logo.svg",
   "icons": [
     {
