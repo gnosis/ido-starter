@@ -8,7 +8,7 @@ jobs:
     name: Continuous Integration
     runs-on: ubuntu-latest
     env:
-        REPO_NAME_SLUG: idostarter
+      REPO_NAME_SLUG: idostarter
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -30,7 +30,7 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-              
+
       - name: Cache node_modules
         id: cache-node-modules
         uses: actions/cache@v2
@@ -50,7 +50,7 @@ jobs:
           REACT_APP_INFURA_ID: 4bf032f2d38a4ed6bb975b80d6340847
           REACT_APP_EASY_AUCTION_MAINNET_ADDRESS: '0x0b7fFc1f4AD541A4Ed16b40D8c37f0929158D101'
           REACT_APP_EASY_AUCTION_RINKEBY_ADDRESS: '0xC5992c0e0A3267C7F75493D0F717201E26BE35f7'
-          REACT_APP_EASY_AUCTION_XDAI_ADDRESS: '0x0b7fFc1f4AD541A4Ed16b40D8c37f0929158D101
+          REACT_APP_EASY_AUCTION_XDAI_ADDRESS: '0x0b7fFc1f4AD541A4Ed16b40D8c37f0929158D101'
       - name: Get PR number
         uses: jwalton/gh-find-current-pr@v1
         id: findPr
@@ -64,11 +64,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: "Deploy to S3: PRaul"
+      - name: 'Deploy to S3: PRaul'
         if: success() && steps.findPr.outputs.number
         run: aws s3 sync build s3://${{ secrets.AWS_REVIEW_BUCKET_NAME }}/${{ env.REPO_NAME_SLUG }}/pr${{ steps.findPr.outputs.number }} --delete
-    
-      - name: "PRaul: Comment PR with app URLs"
+
+      - name: 'PRaul: Comment PR with app URLs'
         uses: mshick/add-pr-comment@v1
         with:
           message: |
@@ -79,10 +79,10 @@ jobs:
         env:
           REVIEW_FEATURE_URL: https://pr${{ steps.findPr.outputs.number }}--${{ env.REPO_NAME_SLUG }}.review.gnosisdev.com
 
-      - name: "Deploy to S3: Develop"
+      - name: 'Deploy to S3: Develop'
         if: github.ref == 'refs/heads/develop'
         run: aws s3 sync build s3://${{ secrets.AWS_DEV_BUCKET_NAME }} --delete
 
-      - name: "Deploy to S3: Staging"
+      - name: 'Deploy to S3: Staging'
         if: github.ref == 'refs/heads/main'
         run: aws s3 sync build s3://${{ secrets.AWS_STAGING_BUCKET_NAME }}/current --delete
