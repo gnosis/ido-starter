@@ -5,7 +5,6 @@ import { Divider, Title } from '@gnosis.pm/safe-react-components'
 
 import { FormContainer } from './components/common/FormContainer'
 import { AllowListDataInput } from './components/form/AllowListDataInput'
-import { AllowListManagerInput } from './components/form/AllowListManagerInput'
 import { AtomicClosureAllowedCheckbox } from './components/form/AtomicClosureAllowedCheckbox'
 import { AuctionEndDatePicker } from './components/form/AuctionEndDatePicker'
 import { AuctioningTokenInput } from './components/form/AuctioningTokenInput'
@@ -38,7 +37,6 @@ const App: React.FC = () => {
         <AuctionEndDatePicker />
         <MinBuyAmountPerOrderInput />
         <AtomicClosureAllowedCheckbox />
-        <AllowListManagerInput />
         <AllowListDataInput />
         <SubmitForm />
       </FormContainer>

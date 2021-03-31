@@ -15,8 +15,8 @@ export const MinBuyAmountInput = () => {
         label={FORM_PARAMETERS[formKey].label}
         name={formKey}
         rules={{
-          required: true,
-          pattern: POSITIVE_NUMBER,
+          required: { value: true, message: 'Field is required' },
+          pattern: { value: POSITIVE_NUMBER, message: 'Invalid number' },
           validate: {
             min: (value) => value > 0 || 'Amount to buy should be positive',
           },

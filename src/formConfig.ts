@@ -7,8 +7,8 @@ export type Auction = {
   orderCancellationEndDate?: string
   auctionEndDate?: string
   minBuyAmountPerOrder?: string
+  isWhiteListingProcessUsed: boolean
   isAtomicClosureAllowed?: boolean
-  allowListManager?: string
   allowListData?: string
 }
 
@@ -25,7 +25,7 @@ export const DEFAULT_FORM_PARAMS: Readonly<Record<FormKeys, any>> = {
   auctionEndDate: '',
   minBuyAmountPerOrder: '',
   isAtomicClosureAllowed: false,
-  allowListManager: '',
+  isWhiteListingProcessUsed: false,
   allowListData: '',
 }
 
@@ -74,14 +74,15 @@ export const FORM_PARAMETERS: Readonly<Record<FormKeys, FormValues>> = {
     tooltipText:
       'Describes whether the auction should be allowed to be closed atomically - i.e. that the last bid can be submitted together with the price. This allows atomic arbitrage and is only recommended for liquid tokens.',
   },
-  allowListManager: {
-    label: 'Allow List Contract (Optional)',
-    tooltipText:
-      'Provide the contract address for a potential allow list manager contract. The allow list manager contract can be used to restrict the access to the auction',
+  isWhiteListingProcessUsed: {
+    label: 'Do you want to use whitelisting process for your auction?',
+    tooltipText: '',
   },
   allowListData: {
-    label: 'Signing Address (Optional)',
+    label: 'Signing Address',
     tooltipText:
       'Provide the public key that is used to allow list participants for the auction participation',
   },
 }
+
+export const ALLOW_LISTING_CONTRACT = '0x80b8aca4689ec911f048c4e0976892ccde14031e'
