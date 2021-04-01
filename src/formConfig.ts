@@ -85,4 +85,11 @@ export const FORM_PARAMETERS: Readonly<Record<FormKeys, FormValues>> = {
   },
 }
 
-export const ALLOW_LISTING_CONTRACT = '0x80b8aca4689ec911f048c4e0976892ccde14031e'
+export const ALLOW_LISTING_CONTRACT = '0x7C882F296335734B958b35DA6b2595FA00043AE9'
+
+// Probably something like that should be used:
+// {
+//   '4': '0x7C882F296335734B958b35DA6b2595FA00043AE9',
+// '1': '0x0F4648d997e486cE06577d6Ee2FecBcA84b834F4',
+// '100': 0x0F4648d997e486cE06577d6Ee2FecBcA84b834F4'
+// }
