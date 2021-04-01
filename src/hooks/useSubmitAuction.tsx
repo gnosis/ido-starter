@@ -123,7 +123,7 @@ export const useSubmitAuction = () => {
       minFundingThresholdInAtoms,
       !!isAtomicClosureAllowed,
       isWhiteListingProcessUsed
-        ? ALLOW_LISTING_CONTRACT
+        ? ALLOW_LISTING_CONTRACT[safe.network]
         : '0x0000000000000000000000000000000000000000',
       isWhiteListingProcessUsed ? utils.defaultAbiCoder.encode(['address'], [allowListData]) : '0x',
     ]
