@@ -17,6 +17,9 @@ export const MinBuyAmountPerOrderInput = () => {
         rules={{
           required: { value: true, message: 'Field is required' },
           pattern: { value: POSITIVE_NUMBER, message: 'Invalid number' },
+          validate: {
+            min: (value) => value > 0 || 'Minimal bid amount must be greather than 0',
+          },
         }}
       />
       <IconTooltip tooltipText={FORM_PARAMETERS[formKey].tooltipText} />
