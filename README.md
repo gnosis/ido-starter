@@ -23,6 +23,7 @@ Then:
 - You should see Safe App Starter as a new app
 - Develop your app from there
 
+
 ## Features
 
 Gnosis Safe App Starter combines recommendations described in the following repositories:
