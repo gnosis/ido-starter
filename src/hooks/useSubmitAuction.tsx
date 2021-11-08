@@ -7,10 +7,10 @@ import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
 import { BaseTransaction } from '@gnosis.pm/safe-apps-sdk'
 
 import { ALLOW_LISTING_CONTRACT } from '../formConfig'
+import { Networks } from '../networkConfig'
 import { useAuctionForm } from './useAuctionForm'
 import { fetchToken } from './useERC20'
 import { useEasyAuctionContract } from './useEasyAuctionContract'
-import { Networks } from '../networkConfig'
 
 type ValuesToSend = [
   string,

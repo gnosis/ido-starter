@@ -29,9 +29,9 @@ export const getProvider = (network: number) => {
     network === 137
       ? POLYGON_RPC
       : network === 100
-        ? XDAI_RPC
-        : network === 4
-          ? `https://rinkeby.infura.io/v3/${INFURA_ID}`
-          : `https://mainnet.infura.io/v3/${INFURA_ID}`
+      ? XDAI_RPC
+      : network === 4
+      ? `https://rinkeby.infura.io/v3/${INFURA_ID}`
+      : `https://mainnet.infura.io/v3/${INFURA_ID}`
   return new ethers.providers.JsonRpcProvider(rpc)
 }
