@@ -2,19 +2,18 @@ import { useMemo } from 'react'
 
 import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
 
-import { EASY_AUCTION_ADDRESSES, getProvider } from './../networkConfig'
+import { EASY_AUCTION_ADDRESSES, Networks, getProvider } from './../networkConfig'
 import { EasyAuction__factory as EasyAuctionFactory } from './../types'
 
 export const useEasyAuctionContract = () => {
   const {
-    safe: { network },
+    safe: { chainId },
   } = useSafeAppsSDK()
 
   const easyAuction = useMemo(() => {
-    const provider = getProvider(network)
-
-    return EasyAuctionFactory.connect(EASY_AUCTION_ADDRESSES[network], provider)
-  }, [network])
+    const provider = getProvider(chainId)
+    return EasyAuctionFactory.connect(EASY_AUCTION_ADDRESSES[chainId as Networks], provider)
+  }, [chainId])
 
   return easyAuction
 }

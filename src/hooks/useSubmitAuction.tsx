@@ -4,9 +4,10 @@ import moment from 'moment'
 import { useCallback } from 'react'
 
 import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk'
-import { Transaction } from '@gnosis.pm/safe-apps-sdk'
+import { BaseTransaction } from '@gnosis.pm/safe-apps-sdk'
 
 import { ALLOW_LISTING_CONTRACT } from '../formConfig'
+import { Networks } from '../networkConfig'
 import { useAuctionForm } from './useAuctionForm'
 import { fetchToken } from './useERC20'
 import { useEasyAuctionContract } from './useEasyAuctionContract'
@@ -30,11 +31,9 @@ export const useSubmitAuction = () => {
   const easyAuction = useEasyAuctionContract()
 
   const submitTx = useCallback(
-    async (txs: Transaction[]) => {
+    async (txs: BaseTransaction[]) => {
       try {
-        const { safeTxHash } = await sdk.txs.send({
-          txs,
-        })
+        const { safeTxHash } = await sdk.txs.send({ txs })
         console.log('Safe TX Hash', safeTxHash)
         const safeTx = await sdk.txs.getBySafeTxHash(safeTxHash)
         console.log('TX service', safeTx)
@@ -99,7 +98,7 @@ export const useSubmitAuction = () => {
       .seconds(0)
       .milliseconds(0)
 
-    const txs: Transaction[] = []
+    const txs: BaseTransaction[] = []
 
     if (sellAmountInAtoms.gt(allowance)) {
       txs.push({
@@ -111,7 +110,7 @@ export const useSubmitAuction = () => {
         ]),
       })
     }
-
+    const chainId: Networks = safe.chainId as Networks
     const valuesToSend: ValuesToSend = [
       auctioningToken.address,
       biddingToken.address,
@@ -123,7 +122,7 @@ export const useSubmitAuction = () => {
       minFundingThresholdInAtoms,
       !!isAtomicClosureAllowed,
       isWhiteListingProcessUsed
-        ? ALLOW_LISTING_CONTRACT[safe.network]
+        ? ALLOW_LISTING_CONTRACT[chainId]
         : '0x0000000000000000000000000000000000000000',
       isWhiteListingProcessUsed ? utils.defaultAbiCoder.encode(['address'], [allowListData]) : '0x',
     ]
